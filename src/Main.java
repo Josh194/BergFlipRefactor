@@ -4,6 +4,6 @@ public class Main {
         model.createInitialUserTable();
         model.createInitialLeaderboard();
 
-        model.addUser("bergen", "123456");
+        model.addLeaderboardScore("bergen", 1000);
     }
 }

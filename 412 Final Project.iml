@@ -10,7 +10,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../SE Jar Files/slf4j-api-1.7.36.jar!/" />
+          <root url="jar://E:/IntelliJ/Jar files for SQLite/slf4j-api-1.7.36.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
@@ -19,7 +19,7 @@
     <orderEntry type="module-library">
       <library>
         <CLASSES>
-          <root url="jar://$MODULE_DIR$/../../SE Jar Files/sqlite-jdbc-3.45.1.0.jar!/" />
+          <root url="jar://E:/IntelliJ/Jar files for SQLite/sqlite-jdbc-3.45.3.0.jar!/" />
         </CLASSES>
         <JAVADOC />
         <SOURCES />
