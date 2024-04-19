@@ -5,15 +5,15 @@ public class Controller {
     public View view;
     public Model model;
 
-    public loginActionListener loginAL;
-    public registerActionListener registerAL;
-    public changePasswordActionListener passwordAL;
-    public exitActionListener exitAL;
-    public playActionListener playAL;
-    public logoutActionListener logoutAL;
-    public refreshActionListener refreshAL;
+    private final loginActionListener loginAL;
+    private final registerActionListener registerAL;
+    private final changePasswordActionListener passwordAL;
+    private final exitActionListener exitAL;
+    private final playActionListener playAL;
+    private final logoutActionListener logoutAL;
+    private final refreshActionListener refreshAL;
 
-    Controller() {
+    public Controller() {
         loginAL = new loginActionListener();
         registerAL = new registerActionListener();
         passwordAL = new changePasswordActionListener();
@@ -26,7 +26,7 @@ public class Controller {
         model = new Model();
     }
 
-    public class loginActionListener implements ActionListener {
+    private class loginActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Login button was pressed!");
@@ -35,21 +35,21 @@ public class Controller {
         }
     }
 
-    public class registerActionListener implements ActionListener {
+    private class registerActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Register button was pressed!");
         }
     }
 
-    public class changePasswordActionListener implements ActionListener {
+    private class changePasswordActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Change Password button was pressed!");
         }
     }
 
-    public class exitActionListener implements ActionListener {
+    private class exitActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Exit button was pressed!");
@@ -59,14 +59,14 @@ public class Controller {
         }
     }
 
-    public class playActionListener implements ActionListener {
+    private class playActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Play button was pressed!");
         }
     }
 
-    public class logoutActionListener implements ActionListener {
+    private class logoutActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Logout button was pressed!");
@@ -75,7 +75,7 @@ public class Controller {
         }
     }
 
-    public class refreshActionListener implements ActionListener {
+    private class refreshActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Refresh button was pressed!");

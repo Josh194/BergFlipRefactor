@@ -7,7 +7,7 @@ public class View {
     private JFrame loginFrame;
     private DefaultListModel<String> listModel;
 
-    View(ActionListener loginAL, ActionListener registerAL, ActionListener passwordAL, ActionListener exitAL) {
+    public View(ActionListener loginAL, ActionListener registerAL, ActionListener passwordAL, ActionListener exitAL) {
         listModel = new DefaultListModel<String>();
 
         openLogin(loginAL,registerAL,passwordAL,exitAL);
