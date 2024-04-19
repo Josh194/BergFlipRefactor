@@ -11,6 +11,10 @@ public class Controller {
     private final changePasswordActionListener passwordAL;
     private final exitActionListener exitAL;
 
+    //Change Password GUI ActionListeners
+    private final confirmPasswordActionListener confirmPassAL;
+    private final cancelActionListener cancelAL;
+
     //Game GUI ActionListeners
     private final flipActionListener flipAL;
     private final logoutActionListener logoutAL;
@@ -29,6 +33,10 @@ public class Controller {
         registerAL = new registerActionListener();
         passwordAL = new changePasswordActionListener();
         exitAL = new exitActionListener();
+
+        //Change Password GUI ActionListener
+        confirmPassAL = new confirmPasswordActionListener();
+        cancelAL = new cancelActionListener();
 
         //Game GUI ActionListeners
         flipAL = new flipActionListener();
@@ -54,7 +62,7 @@ public class Controller {
             System.out.println("Login button was pressed!");
             System.out.println("Username: " + username + ". Password: " + password + ".");
             view.closeLogin();
-            view.runGame(flipAL,logoutAL,submitFlipsAL,submitPredicAL,headsAL,tailsAL,submitBetAL,refreshAL);
+            view.openGame(flipAL,logoutAL,submitFlipsAL,submitPredicAL,headsAL,tailsAL,submitBetAL,refreshAL);
         }
     }
 
@@ -72,6 +80,7 @@ public class Controller {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Change Password button was pressed!");
+            view.openChangePassword(confirmPassAL,cancelAL);
         }
     }
 
@@ -89,6 +98,7 @@ public class Controller {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Coin Flip button was pressed!");
+            view.updateFlipStatus();
         }
     }
 
@@ -148,6 +158,25 @@ public class Controller {
             else {
                 System.out.println("That is an invalid bet! You have to bet at least $1.");
             }
+        }
+    }
+
+    private class confirmPasswordActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            String username = view.passUsername.getText();
+            String oldPassword = view.oldPassword.getText();
+            String newPassword = view.newPassword.getText();
+            System.out.println("Changed password " + oldPassword + " for user " + username + " to be " + newPassword + ".");
+            view.closeChangePassword();
+        }
+    }
+
+    private class cancelActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            System.out.println("Cancel button was pressed!");
+            view.closeChangePassword();
         }
     }
 

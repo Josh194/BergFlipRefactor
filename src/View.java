@@ -12,8 +12,15 @@ public class View {
     public JTextField numOfResults;
     public JTextField bettingAmount;
 
+    //Change Password GUI Text Fields
+    public JTextField passUsername;
+    public JTextField oldPassword;
+    public JTextField newPassword;
+
+    private JLabel flipStatus;
     private JFrame gameFrame;
     private JFrame loginFrame;
+    private JFrame passwordFrame;
     private DefaultListModel<String> listModel;
 
     public View(ActionListener loginAL, ActionListener registerAL, ActionListener passwordAL, ActionListener exitAL) {
@@ -138,17 +145,26 @@ public class View {
      */
     private JPanel makeBottomGameTab(ActionListener flipAL, ActionListener logoutAL) {
         JPanel buttons = new JPanel();
-        buttons.setLayout(new GridLayout(2,1,10,10));
+        buttons.setLayout(new GridLayout(3,1));
 
         JButton flipButton = new JButton("Flip Coin!");
         flipButton.addActionListener(flipAL);
+        buttons.add(flipButton);
+
+        flipStatus = new JLabel("Awaiting coin flip...");
+        flipStatus.setHorizontalAlignment(JLabel.CENTER);
+        flipStatus.setFont(new Font("Arial",Font.PLAIN,20));
+        buttons.add(flipStatus);
+
         JButton logoutButton = new JButton("Logout");
         logoutButton.addActionListener(logoutAL);
-
-        buttons.add(flipButton);
         buttons.add(logoutButton);
 
         return buttons;
+    }
+
+    public void updateFlipStatus() {
+        flipStatus.setText("The coin was flipped!");
     }
 
     /*
@@ -176,10 +192,10 @@ public class View {
      * DESCRIPTION:
      * Builds the game GUI
      */
-    public void runGame(ActionListener flipAL, ActionListener logoutAL, ActionListener submitFlipsAL, ActionListener submitPredicAL,
-                        ActionListener headsAL, ActionListener tailsAL, ActionListener submitBetAL, ActionListener refreshAL) {
+    public void openGame(ActionListener flipAL, ActionListener logoutAL, ActionListener submitFlipsAL, ActionListener submitPredicAL,
+                         ActionListener headsAL, ActionListener tailsAL, ActionListener submitBetAL, ActionListener refreshAL) {
         System.out.println("Initializing Game GUI...");
-        gameFrame = new JFrame();
+        gameFrame = new JFrame("Coin Flip Game");
         JTabbedPane tabs = new JTabbedPane();
 
         tabs.add("GAME", makeGameTab(flipAL,logoutAL,submitFlipsAL,submitPredicAL,headsAL,tailsAL,submitBetAL));
@@ -211,7 +227,7 @@ public class View {
      */
     public void openLogin(ActionListener loginAL, ActionListener registerAL, ActionListener passwordAL, ActionListener exitAL) {
         System.out.println("Initializing Login GUI...");
-        loginFrame = new JFrame();
+        loginFrame = new JFrame("Login or Register");
         loginFrame.setLayout(new GridLayout(4,2,8,8));
 
         JButton loginButton = new JButton("Login");
@@ -254,6 +270,59 @@ public class View {
     public void closeLogin() {
         System.out.println("Closing Login GUI...");
         loginFrame.setVisible(false);
+    }
+
+    /*
+     * PARAMETERS: ActionListeners for Confirm Change, Cancel buttons
+     * RETURN TYPE: VOID
+     * DESCRIPTION:
+     * Builds the Change Password GUI
+     */
+    public void openChangePassword(ActionListener confirmPassAL, ActionListener cancelAL) {
+        System.out.println("Opening Change Password GUI...");
+        passwordFrame = new JFrame("Change Password");
+        passwordFrame.setLayout(new GridLayout(4,2));
+
+        JLabel username = new JLabel("USERNAME:");
+        username.setHorizontalAlignment(JLabel.CENTER);
+        passwordFrame.add(username);
+        passUsername = new JTextField();
+        passwordFrame.add(passUsername);
+
+        JLabel oldpass = new JLabel("OLD PASSWORD:");
+        oldpass.setHorizontalAlignment(JLabel.CENTER);
+        passwordFrame.add(oldpass);
+        oldPassword = new JTextField();
+        passwordFrame.add(oldPassword);
+
+        JLabel newpass = new JLabel("NEW PASSWORD:");
+        newpass.setHorizontalAlignment(JLabel.CENTER);
+        passwordFrame.add(newpass);
+        newPassword = new JTextField();
+        passwordFrame.add(newPassword);
+
+        JButton confirmNewPassButton = new JButton("Confirm New Password");
+        confirmNewPassButton.addActionListener(confirmPassAL);
+        passwordFrame.add(confirmNewPassButton);
+
+        JButton cancelButton = new JButton("Cancel");
+        cancelButton.addActionListener(cancelAL);
+        passwordFrame.add(cancelButton);
+
+        passwordFrame.setSize(500,300);
+        passwordFrame.setVisible(true);
+        System.out.println("Change Password GUI Initialized!");
+    }
+
+    /*
+     * PARAMETERS: NONE
+     * RETURN TYPE: VOID
+     * DESCRIPTION:
+     * Closes the Change Password GUI
+     */
+    public void closeChangePassword() {
+        System.out.println("Closing Change Password GUI...");
+        passwordFrame.setVisible(false);
     }
 
 }
