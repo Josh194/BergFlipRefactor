@@ -1,9 +1,7 @@
 public class Main {
     public static void main(String[] args) {
-        Model model = new Model();
-        model.createInitialUserTable();
-        model.createInitialLeaderboard();
+        System.out.println("Launching the Program...");
 
-        model.addLeaderboardScore("bergen", 1000);
+        new Controller();
     }
 }
