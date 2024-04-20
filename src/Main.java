@@ -5,5 +5,7 @@ public class Main {
 
         new Controller();
 
+        Model model = new Model();
+        model.getUsers();
     }
 }
