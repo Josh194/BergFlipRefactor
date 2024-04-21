@@ -3,5 +3,6 @@ public class Main {
         System.out.println("Launching the Program...");
 
         new Controller();
+
     }
 }

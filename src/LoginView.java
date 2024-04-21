@@ -2,7 +2,7 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
-public class View {
+public class LoginView {
     //Login GUI Text Fields
     public JTextField enterUsername;
     public JTextField enterPassword;
@@ -23,7 +23,7 @@ public class View {
     private JFrame passwordFrame;
     private DefaultListModel<String> listModel;
 
-    public View(ActionListener loginAL, ActionListener registerAL, ActionListener passwordAL, ActionListener exitAL) {
+    public LoginView(ActionListener loginAL, ActionListener registerAL, ActionListener passwordAL, ActionListener exitAL) {
         listModel = new DefaultListModel<String>();
 
         openLogin(loginAL,registerAL,passwordAL,exitAL);
