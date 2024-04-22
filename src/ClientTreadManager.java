@@ -8,7 +8,6 @@ public class ClientTreadManager extends Thread {
     final PrintWriter writer;
     final Socket socket;
 
-
     public ClientTreadManager(BufferedReader reader, PrintWriter writer, Socket socket) {
         this.reader = reader;
         this.writer = writer;
@@ -29,7 +28,7 @@ public class ClientTreadManager extends Thread {
                 System.out.println("Received: " + msg);
             }
         } catch (IOException e) {
-            e.printStackTrace();
+            System.out.println("Client disconnected unexpectedly!");
         }
      }
 }
