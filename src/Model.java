@@ -1,9 +1,15 @@
 import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Model {
-    void createInitialUserTable() {
+    public Model() {
+        createInitialLeaderboard();
+        createInitialUserTable();
+    }
+
+    private void createInitialUserTable() {
         try {
             Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db");
             String cmd = "CREATE TABLE IF NOT EXISTS userData (" +
@@ -17,7 +23,7 @@ public class Model {
             System.out.println("Failed to create table for user data!");
         }
     }
-    void createInitialLeaderboard() {
+    private void createInitialLeaderboard() {
         try {
             Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db");
             String cmd = "CREATE TABLE IF NOT EXISTS leaderboard (" +
@@ -31,7 +37,7 @@ public class Model {
         }
     }
 
-    void addUser(String username, String password) {
+    public void addUser(String username, String password) {
         try {
             Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db");
             PreparedStatement stmt = conn.prepareStatement("INSERT INTO userData (username, password) VALUES (?, ?);");
@@ -81,7 +87,7 @@ public class Model {
         }
     }
 
-    ArrayList getUsers() {
+    private ArrayList<String> getUsers() {
         ArrayList<String> users = new ArrayList<>();
         try {
             Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db");
@@ -96,5 +102,15 @@ public class Model {
         }
 
         return users;
+    }
+
+    public boolean doesUserExist(String username) {
+        ArrayList<String> Users = this.getUsers();
+        for (String user : Users) {
+            if (Objects.equals(user, username)) {
+                return true;
+            }
+        }
+        return false;
     }
 }

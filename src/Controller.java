@@ -76,6 +76,9 @@ public class Controller {
             String username = loginView.enterUsername.getText();
             String password = loginView.enterPassword.getText();
             System.out.println("Register button was pressed!");
+            if (model.doesUserExist(username) && checkUserValidity(username, password)) {
+                model.addUser(username, password);
+            }
             System.out.println("Username: " + username + ". Password: " + password + ".");
         }
     }
@@ -184,4 +187,16 @@ public class Controller {
         }
     }
 
+    private boolean checkUserValidity(String username, String password) {
+        if (username.isEmpty()) {
+            System.out.println("Username is empty!");
+        }
+        if (password.isEmpty()) {
+            System.out.println("Password is empty!");
+        }
+        if (password.length() > 8) {
+            System.out.println("Password must be 8 characters or longer!");
+        }
+        return false;
+    }
 }
