@@ -3,29 +3,23 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class LoginView {
-    //Login GUI Text Fields
-    public JTextField enterUsername;
-    public JTextField enterPassword;
-
-    //Game GUI Text Fields
+    //REMOVE
     public JTextField numOfFlips;
     public JTextField numOfResults;
     public JTextField bettingAmount;
-
-    //Change Password GUI Text Fields
     public JTextField passUsername;
     public JTextField oldPassword;
     public JTextField newPassword;
-
     private JLabel flipStatus;
     private JFrame gameFrame;
-    private JFrame loginFrame;
     private JFrame passwordFrame;
-    private DefaultListModel<String> listModel;
+
+    //KEEP
+    public JTextField enterUsername;
+    public JTextField enterPassword;
+    private JFrame loginFrame;
 
     public LoginView(ActionListener loginAL, ActionListener registerAL, ActionListener passwordAL, ActionListener exitAL) {
-        listModel = new DefaultListModel<String>();
-
         openLogin(loginAL,registerAL,passwordAL,exitAL);
     }
 
@@ -178,9 +172,9 @@ public class LoginView {
 
         JButton refreshButton = new JButton("Refresh");
         refreshButton.addActionListener(refreshAL);
-        JList<String> leaderboardList = new JList<String>(listModel);
+        //JList<String> leaderboardList = new JList<String>(listModel);
 
-        leaderboard.add(leaderboardList);
+        //leaderboard.add(leaderboardList);
         leaderboard.add(refreshButton);
 
         return leaderboard;
