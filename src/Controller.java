@@ -2,10 +2,10 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 
 public class Controller {
-    public LoginView loginView;
-    public GameView gameView;
-    public PasswordView passwordView;
-    public Model model;
+    private final LoginView loginView;
+    private final GameView gameView;
+    private final PasswordView passwordView;
+    private final Model model;
 
     //Login GUI ActionListeners
     private final loginActionListener loginAL;
@@ -61,21 +61,24 @@ public class Controller {
     private class loginActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            String username = loginView.enterUsername.getText();
-            String password = loginView.enterPassword.getText();
+            String username = loginView.getEnterUsername().getText();
+            String password = loginView.getEnterPassword().getText();
             System.out.println("Login button was pressed!");
             System.out.println("Username: " + username + ". Password: " + password + ".");
             loginView.closeLogin();
-            loginView.openGame(flipAL,logoutAL,submitFlipsAL,submitPredicAL,headsAL,tailsAL,submitBetAL,refreshAL);
+            gameView.openGame(flipAL,logoutAL,submitFlipsAL,submitPredicAL,headsAL,tailsAL,submitBetAL,refreshAL);
         }
     }
 
     private class registerActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            String username = loginView.enterUsername.getText();
-            String password = loginView.enterPassword.getText();
+            String username = loginView.getEnterUsername().getText();
+            String password = loginView.getEnterPassword().getText();
             System.out.println("Register button was pressed!");
+            if (model.doesUserExist(username) && checkUserValidity(username, password)) {
+                model.addUser(username, password);
+            }
             System.out.println("Username: " + username + ". Password: " + password + ".");
         }
     }
@@ -84,7 +87,8 @@ public class Controller {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Change Password button was pressed!");
-            loginView.openChangePassword(confirmPassAL,cancelAL);
+            loginView.closeLogin();
+            passwordView.openChangePassword(confirmPassAL,cancelAL);
         }
     }
 
@@ -102,7 +106,7 @@ public class Controller {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Coin Flip button was pressed!");
-            loginView.updateFlipStatus();
+            gameView.updateFlipStatus();
         }
     }
 
@@ -110,7 +114,7 @@ public class Controller {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Logout button was pressed!");
-            loginView.closeGame();
+            gameView.closeGame();
             loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
         }
     }
@@ -125,7 +129,7 @@ public class Controller {
     private class submitFlipsActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            int totalFlips = Integer.parseInt(loginView.numOfFlips.getText());
+            int totalFlips = Integer.parseInt(gameView.getNumOfFlips().getText());
             System.out.println("Coin will flip " + totalFlips + " times!");
         }
     }
@@ -147,7 +151,7 @@ public class Controller {
     private class submitPredictionActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            int prediction = Integer.parseInt(loginView.numOfResults.getText());
+            int prediction = Integer.parseInt(gameView.getPrediction().getText());
             System.out.println("Your prediction is that " + prediction + " coins will land correctly!");
         }
     }
@@ -155,7 +159,7 @@ public class Controller {
     private class submitBetActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            int bet = Integer.parseInt(loginView.bettingAmount.getText());
+            int bet = Integer.parseInt(gameView.getBettingAmount().getText());
             if(bet > 0) {
                 System.out.println("Your bet is $" + bet + "!");
             }
@@ -168,11 +172,12 @@ public class Controller {
     private class confirmPasswordActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            String username = loginView.passUsername.getText();
-            String oldPassword = loginView.oldPassword.getText();
-            String newPassword = loginView.newPassword.getText();
+            String username = passwordView.getPassUsername().getText();
+            String oldPassword = passwordView.getOldPassword().getText();
+            String newPassword = passwordView.getNewPassword().getText();
             System.out.println("Changed password " + oldPassword + " for user " + username + " to be " + newPassword + ".");
-            loginView.closeChangePassword();
+            passwordView.closeChangePassword();
+            loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
         }
     }
 
@@ -180,8 +185,21 @@ public class Controller {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Cancel button was pressed!");
-            loginView.closeChangePassword();
+            passwordView.closeChangePassword();
+            loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
         }
     }
 
+    private boolean checkUserValidity(String username, String password) {
+        if (username.isEmpty()) {
+            System.out.println("Username is empty!");
+        }
+        if (password.isEmpty()) {
+            System.out.println("Password is empty!");
+        }
+        if (password.length() > 8) {
+            System.out.println("Password must be 8 characters or longer!");
+        }
+        return false;
+    }
 }

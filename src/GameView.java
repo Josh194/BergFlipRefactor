@@ -4,10 +4,10 @@ import java.awt.event.ActionListener;
 
 public class GameView {
     private JTextField numOfFlips;
-    private JTextField numOfResults;
+    private JTextField prediction;
     private JTextField bettingAmount;
 
-    private JLabel flipStatus;
+    private JLabel flipStatusLabel;
     private JFrame gameFrame;
     private DefaultListModel<String> listModel;
 
@@ -23,6 +23,43 @@ public class GameView {
      * Add functionality for dice betting
      * Add coin flip animation
      */
+
+    public JTextField getNumOfFlips() {
+        return numOfFlips;
+    }
+
+    public JTextField getPrediction() {
+        return prediction;
+    }
+
+    public JTextField getBettingAmount() {
+        return bettingAmount;
+    }
+
+    public void openGame(ActionListener flipAL, ActionListener logoutAL, ActionListener submitFlipsAL, ActionListener submitPredicAL,
+                         ActionListener headsAL, ActionListener tailsAL, ActionListener submitBetAL, ActionListener refreshAL) {
+        System.out.println("Initializing Game GUI...");
+        gameFrame = new JFrame("Coin Flip Game");
+        JTabbedPane tabs = new JTabbedPane();
+
+        tabs.add("GAME", makeGameTab(flipAL,logoutAL,submitFlipsAL,submitPredicAL,headsAL,tailsAL,submitBetAL));
+        tabs.add("LEADERBOARD", makeLeaderboardTab(refreshAL));
+
+        gameFrame.add(tabs);
+        gameFrame.setSize(1100,850);
+        gameFrame.setVisible(true);
+
+        System.out.println("Game GUI Initialized Successfully!");
+    }
+
+    public void closeGame() {
+        System.out.println("Closing Game GUI...");
+        gameFrame.setVisible(false);
+    }
+
+    public void updateFlipStatus() {
+        flipStatusLabel.setText("The coin was flipped!");
+    }
 
     //Compiles separate panels into one Game Tab
     private JPanel makeGameTab(ActionListener flipAL, ActionListener logoutAL, ActionListener submitFlipsAL, ActionListener submitPredicAL,
@@ -42,12 +79,6 @@ public class GameView {
         return game;
     }
 
-    /*
-     * PARAMETERS: NONE
-     * RETURN TYPE: JPanel Text Panel
-     * DESCRIPTION:
-     * Builds the Text Portion of the Game Tab
-     */
     private JPanel makeTopGameTab() {
         JPanel title = new JPanel();
         title.setLayout(new GridLayout(4,1,0,10));
@@ -76,12 +107,6 @@ public class GameView {
         return title;
     }
 
-    /*
-     * PARAMETERS: ActionListeners for Flips, Heads, Tails, Prediction, Bet buttons
-     * RETURN TYPE: JPanel Body Panel
-     * DESCRIPTION:
-     * Builds the body of the Game Tab
-     */
     private JPanel makeMiddleGameTab(ActionListener submitFlipsAL, ActionListener headsAL, ActionListener tailsAL,
                                      ActionListener submitPredicAL, ActionListener submitBetAL) {
         JPanel betting = new JPanel();
@@ -108,11 +133,11 @@ public class GameView {
 
         JLabel resultsPrompt = new JLabel("How many coins will land on the side you predicted?");
         resultsPrompt.setHorizontalAlignment(JLabel.CENTER);
-        numOfResults = new JTextField();
+        prediction = new JTextField();
         JButton submitPredictionButton = new JButton("Submit Prediction");
         submitPredictionButton.addActionListener(submitPredicAL);
         betting.add(resultsPrompt);
-        betting.add(numOfResults);
+        betting.add(prediction);
         betting.add(submitPredictionButton);
 
         JLabel betPrompt = new JLabel("How much money do you want to bet?");
@@ -127,12 +152,6 @@ public class GameView {
         return betting;
     }
 
-    /*
-     * PARAMETERS: ActionsListeners for Coin Flip, Logout buttons
-     * RETURN TYPE: JPanel Bottom Panel
-     * DESCRIPTION:
-     * Builds the bottom portion of the Game Tab
-     */
     private JPanel makeBottomGameTab(ActionListener flipAL, ActionListener logoutAL) {
         JPanel buttons = new JPanel();
         buttons.setLayout(new GridLayout(3,1));
@@ -141,10 +160,10 @@ public class GameView {
         flipButton.addActionListener(flipAL);
         buttons.add(flipButton);
 
-        flipStatus = new JLabel("Awaiting coin flip...");
-        flipStatus.setHorizontalAlignment(JLabel.CENTER);
-        flipStatus.setFont(new Font("Arial",Font.PLAIN,20));
-        buttons.add(flipStatus);
+        flipStatusLabel = new JLabel("Awaiting coin flip...");
+        flipStatusLabel.setHorizontalAlignment(JLabel.CENTER);
+        flipStatusLabel.setFont(new Font("Arial",Font.PLAIN,20));
+        buttons.add(flipStatusLabel);
 
         JButton logoutButton = new JButton("Logout");
         logoutButton.addActionListener(logoutAL);
@@ -153,16 +172,6 @@ public class GameView {
         return buttons;
     }
 
-    public void updateFlipStatus() {
-        flipStatus.setText("The coin was flipped!");
-    }
-
-    /*
-     * PARAMETERS: ActionListener for Refresh button
-     * RETURN TYPE: JPanel Leaderboard Tab
-     * DESCRIPTION:
-     * Builds the Leaderboard Tab in the game GUI
-     */
     private JPanel makeLeaderboardTab(ActionListener refreshAL) {
         JPanel leaderboard = new JPanel();
 
@@ -174,39 +183,6 @@ public class GameView {
         leaderboard.add(refreshButton);
 
         return leaderboard;
-    }
-
-    /*
-     * PARAMETERS: ActionListeners for Play, Logout, Refresh buttons
-     * RETURN TYPE: VOID
-     * DESCRIPTION:
-     * Builds the game GUI
-     */
-    public void openGame(ActionListener flipAL, ActionListener logoutAL, ActionListener submitFlipsAL, ActionListener submitPredicAL,
-                         ActionListener headsAL, ActionListener tailsAL, ActionListener submitBetAL, ActionListener refreshAL) {
-        System.out.println("Initializing Game GUI...");
-        gameFrame = new JFrame("Coin Flip Game");
-        JTabbedPane tabs = new JTabbedPane();
-
-        tabs.add("GAME", makeGameTab(flipAL,logoutAL,submitFlipsAL,submitPredicAL,headsAL,tailsAL,submitBetAL));
-        tabs.add("LEADERBOARD", makeLeaderboardTab(refreshAL));
-
-        gameFrame.add(tabs);
-        gameFrame.setSize(1100,850);
-        gameFrame.setVisible(true);
-
-        System.out.println("Game GUI Initialized Successfully!");
-    }
-
-    /*
-     * PARAMETERS: NONE
-     * RETURN TYPE: VOID
-     * DESCRIPTION:
-     * Closes the game GUI
-     */
-    public void closeGame() {
-        System.out.println("Closing Game GUI...");
-        gameFrame.setVisible(false);
     }
 
 }

@@ -25,23 +25,6 @@ public class Server {
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
-
-//                System.out.println("Waiting for client to connect...");
-//                Socket client = coinFlipServer.accept();
-//                System.out.println("Connected to client " + client.toString());
-//
-//                BufferedReader reader = new BufferedReader(new InputStreamReader(client.getInputStream()));
-//                PrintWriter writer = new PrintWriter(client.getOutputStream());
-//
-//                System.out.println("Waiting for client to sent data...");
-//                while ((msg = reader.readLine()) != null) {
-//                    if (msg.equals("e")) {
-//                        client.close();
-//                        break;
-//                    }
-//                    System.out.println("Received: " + msg);
-//                }
-//                writer.close();
             }
         } catch (IOException e) {
             e.printStackTrace();

@@ -13,12 +13,18 @@ public class PasswordView {
 
     }
 
-    /*
-     * PARAMETERS: ActionListeners for Confirm Change, Cancel buttons
-     * RETURN TYPE: VOID
-     * DESCRIPTION:
-     * Builds the Change Password GUI
-     */
+    public JTextField getPassUsername() {
+        return passUsername;
+    }
+
+    public JTextField getOldPassword() {
+        return oldPassword;
+    }
+
+    public JTextField getNewPassword() {
+        return newPassword;
+    }
+
     public void openChangePassword(ActionListener confirmPassAL, ActionListener cancelAL) {
         System.out.println("Opening Change Password GUI...");
         passwordFrame = new JFrame("Change Password");
@@ -55,12 +61,6 @@ public class PasswordView {
         System.out.println("Change Password GUI Initialized!");
     }
 
-    /*
-     * PARAMETERS: NONE
-     * RETURN TYPE: VOID
-     * DESCRIPTION:
-     * Closes the Change Password GUI
-     */
     public void closeChangePassword() {
         System.out.println("Closing Change Password GUI...");
         passwordFrame.setVisible(false);
