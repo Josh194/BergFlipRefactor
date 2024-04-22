@@ -7,7 +7,13 @@ public class GameView {
     private JTextField prediction;
     private JTextField bettingAmount;
 
+    private JLabel userFlips;
+    private JLabel headsOrTails;
+    private JLabel userPrediction;
+    private JLabel userBet;
     private JLabel flipStatusLabel;
+
+    private boolean flipStatus = false;
     private JFrame gameFrame;
     private DefaultListModel<String> listModel;
 
@@ -21,6 +27,10 @@ public class GameView {
      * Create Setter functions
      * Reorganize functions -> public first, private second
      * Add functionality for dice betting
+     *       -> Bubble to select coin, or coin and dice
+     *       -> Coin and dice bubble edits GUI accordingly
+     *              -> Adds another panel for dice bets
+     *              -> Updates text in other panels
      * Add coin flip animation
      */
 
@@ -36,6 +46,30 @@ public class GameView {
         return bettingAmount;
     }
 
+    public void updateFlips() {
+        int flips = Integer.parseInt(numOfFlips.getText());
+        userFlips.setText("Times to Flip: " + flips);
+    }
+
+    public void updateHeadsOrTails(boolean heads) {
+        //GET STATUS OF HEADS OR TAILS
+        if(heads) {
+            headsOrTails.setText("Predicted Result: HEADS");
+        } else {
+            headsOrTails.setText("Predicted Result: TAILS");
+        }
+    }
+
+    public void updatePrediction() {
+        int predict = Integer.parseInt(prediction.getText());
+        userPrediction.setText("Predicted Number of Times Correct: " + predict);
+    }
+
+    public void updateBet() {
+        int bet = Integer.parseInt(bettingAmount.getText());
+        userBet.setText("Bet: $" + bet);
+    }
+
     public void openGame(ActionListener flipAL, ActionListener logoutAL, ActionListener submitFlipsAL, ActionListener submitPredicAL,
                          ActionListener headsAL, ActionListener tailsAL, ActionListener submitBetAL, ActionListener refreshAL) {
         System.out.println("Initializing Game GUI...");
@@ -46,7 +80,7 @@ public class GameView {
         tabs.add("LEADERBOARD", makeLeaderboardTab(refreshAL));
 
         gameFrame.add(tabs);
-        gameFrame.setSize(1100,850);
+        gameFrame.setSize(1000,750);
         gameFrame.setVisible(true);
 
         System.out.println("Game GUI Initialized Successfully!");
@@ -59,33 +93,36 @@ public class GameView {
 
     public void updateFlipStatus() {
         flipStatusLabel.setText("The coin was flipped!");
+        flipStatus = true;
     }
 
     //Compiles separate panels into one Game Tab
     private JPanel makeGameTab(ActionListener flipAL, ActionListener logoutAL, ActionListener submitFlipsAL, ActionListener submitPredicAL,
                                ActionListener headsAL, ActionListener tailsAL, ActionListener submitBetAL) {
         JPanel game = new JPanel();
-        game.setLayout(new GridLayout(3,1,0,30));
+        game.setLayout(new GridLayout(4,1,0,5));
 
-        JPanel title = makeTopGameTab();
-        JPanel betting = makeMiddleGameTab(submitFlipsAL, headsAL, tailsAL, submitPredicAL, submitBetAL);
-        JPanel buttons = makeBottomGameTab(flipAL, logoutAL);
+        JPanel title = makeGameTitle();
+        JPanel betting = makeGameUserInput(submitFlipsAL, headsAL, tailsAL, submitPredicAL, submitBetAL);
+        JPanel input = makeGameStatusText();
+        JPanel buttons = makeGamePrimaryButtons(flipAL, logoutAL);
 
         //Compiling panels into Game Panel
         game.add(title);
         game.add(betting);
+        game.add(input);
         game.add(buttons);
 
         return game;
     }
 
-    private JPanel makeTopGameTab() {
+    private JPanel makeGameTitle() {
         JPanel title = new JPanel();
-        title.setLayout(new GridLayout(4,1,0,10));
+        title.setLayout(new GridLayout(4,1));
 
-        JLabel titleLabel = new JLabel("THE GAME");
+        JLabel titleLabel = new JLabel("COIN FLIP GAME");
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
-        titleLabel.setFont(new Font("Arial",Font.PLAIN,50));
+        titleLabel.setFont(new Font("Arial",Font.PLAIN,40));
         title.add(titleLabel);
 
         String instructText1 = "Choose how many times you want the coin to flip. Then, decide whether you want to guess heads or tails.";
@@ -97,9 +134,9 @@ public class GameView {
         instructions1.setHorizontalAlignment(JLabel.CENTER);
         instructions2.setHorizontalAlignment(JLabel.CENTER);
         instructions3.setHorizontalAlignment(JLabel.CENTER);
-        instructions1.setFont(new Font("Arial",Font.PLAIN,15));
-        instructions2.setFont(new Font("Arial",Font.PLAIN,15));
-        instructions3.setFont(new Font("Arial",Font.PLAIN,15));
+        instructions1.setFont(new Font("Arial",Font.PLAIN,12));
+        instructions2.setFont(new Font("Arial",Font.PLAIN,12));
+        instructions3.setFont(new Font("Arial",Font.PLAIN,12));
         title.add(instructions1);
         title.add(instructions2);
         title.add(instructions3);
@@ -107,7 +144,7 @@ public class GameView {
         return title;
     }
 
-    private JPanel makeMiddleGameTab(ActionListener submitFlipsAL, ActionListener headsAL, ActionListener tailsAL,
+    private JPanel makeGameUserInput(ActionListener submitFlipsAL, ActionListener headsAL, ActionListener tailsAL,
                                      ActionListener submitPredicAL, ActionListener submitBetAL) {
         JPanel betting = new JPanel();
         betting.setLayout(new GridLayout(4,3,5,15));
@@ -152,18 +189,51 @@ public class GameView {
         return betting;
     }
 
-    private JPanel makeBottomGameTab(ActionListener flipAL, ActionListener logoutAL) {
-        JPanel buttons = new JPanel();
-        buttons.setLayout(new GridLayout(3,1));
+    private JPanel makeUserInputText() {
+        JPanel input = new JPanel();
+        input.setLayout(new GridLayout(2,2,5,5));
 
-        JButton flipButton = new JButton("Flip Coin!");
-        flipButton.addActionListener(flipAL);
-        buttons.add(flipButton);
+        userFlips = new JLabel("Times to Flip: -");
+        userFlips.setHorizontalAlignment(JLabel.CENTER);
+        input.add(userFlips);
+
+        headsOrTails = new JLabel("Predicted Result: -");
+        headsOrTails.setHorizontalAlignment(JLabel.CENTER);
+        input.add(headsOrTails);
+
+        userPrediction = new JLabel("Predicted Number of Times Correct: -");
+        userPrediction.setHorizontalAlignment(JLabel.CENTER);
+        input.add(userPrediction);
+
+        userBet = new JLabel("Bet: -");
+        userBet.setHorizontalAlignment(JLabel.CENTER);
+        input.add(userBet);
+
+        return input;
+    }
+
+    private JPanel makeGameStatusText() {
+        JPanel text = new JPanel();
+        text.setLayout(new GridLayout(2,1));
+
+        JPanel input = makeUserInputText();
+        text.add(input);
 
         flipStatusLabel = new JLabel("Awaiting coin flip...");
         flipStatusLabel.setHorizontalAlignment(JLabel.CENTER);
         flipStatusLabel.setFont(new Font("Arial",Font.PLAIN,20));
-        buttons.add(flipStatusLabel);
+        text.add(flipStatusLabel);
+
+        return text;
+    }
+
+    private JPanel makeGamePrimaryButtons(ActionListener flipAL, ActionListener logoutAL) {
+        JPanel buttons = new JPanel();
+        buttons.setLayout(new GridLayout(2,1,10,10));
+
+        JButton flipButton = new JButton("Flip Coin!");
+        flipButton.addActionListener(flipAL);
+        buttons.add(flipButton);
 
         JButton logoutButton = new JButton("Logout");
         logoutButton.addActionListener(logoutAL);

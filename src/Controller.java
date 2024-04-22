@@ -131,6 +131,7 @@ public class Controller {
         public void actionPerformed(ActionEvent e) {
             int totalFlips = Integer.parseInt(gameView.getNumOfFlips().getText());
             System.out.println("Coin will flip " + totalFlips + " times!");
+            gameView.updateFlips();
         }
     }
 
@@ -138,6 +139,7 @@ public class Controller {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Heads button was pressed!");
+            gameView.updateHeadsOrTails(true);
         }
     }
 
@@ -145,6 +147,7 @@ public class Controller {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Tails button was pressed!");
+            gameView.updateHeadsOrTails(false);
         }
     }
 
@@ -153,6 +156,7 @@ public class Controller {
         public void actionPerformed(ActionEvent e) {
             int prediction = Integer.parseInt(gameView.getPrediction().getText());
             System.out.println("Your prediction is that " + prediction + " coins will land correctly!");
+            gameView.updatePrediction();
         }
     }
 
@@ -162,6 +166,7 @@ public class Controller {
             int bet = Integer.parseInt(gameView.getBettingAmount().getText());
             if(bet > 0) {
                 System.out.println("Your bet is $" + bet + "!");
+                gameView.updateBet();
             }
             else {
                 System.out.println("That is an invalid bet! You have to bet at least $1.");
