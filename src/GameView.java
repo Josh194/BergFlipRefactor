@@ -23,9 +23,6 @@ public class GameView {
 
     /*
      * TODO
-     * Create Getter functions
-     * Create Setter functions
-     * Reorganize functions -> public first, private second
      * Add functionality for dice betting
      *       -> Bubble to select coin, or coin and dice
      *       -> Coin and dice bubble edits GUI accordingly
@@ -52,7 +49,6 @@ public class GameView {
     }
 
     public void updateHeadsOrTails(boolean heads) {
-        //GET STATUS OF HEADS OR TAILS
         if(heads) {
             headsOrTails.setText("Predicted Result: HEADS");
         } else {
@@ -70,6 +66,11 @@ public class GameView {
         userBet.setText("Bet: $" + bet);
     }
 
+    public void updateFlipStatus() {
+        flipStatusLabel.setText("The coin was flipped!");
+        flipStatus = true;
+    }
+
     public void openGame(ActionListener flipAL, ActionListener logoutAL, ActionListener submitFlipsAL, ActionListener submitPredicAL,
                          ActionListener headsAL, ActionListener tailsAL, ActionListener submitBetAL, ActionListener refreshAL) {
         System.out.println("Initializing Game GUI...");
@@ -82,7 +83,6 @@ public class GameView {
         gameFrame.add(tabs);
         gameFrame.setSize(1000,750);
         gameFrame.setVisible(true);
-
         System.out.println("Game GUI Initialized Successfully!");
     }
 
@@ -91,9 +91,16 @@ public class GameView {
         gameFrame.setVisible(false);
     }
 
-    public void updateFlipStatus() {
-        flipStatusLabel.setText("The coin was flipped!");
-        flipStatus = true;
+    public void informInvalidFlips() {
+
+    }
+
+    public void informInvalidPrediction() {
+
+    }
+
+    public void informInvalidBet() {
+
     }
 
     //Compiles separate panels into one Game Tab

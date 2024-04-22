@@ -60,4 +60,16 @@ public class LoginView {
         loginFrame.setVisible(false);
     }
 
+    public void informInvalidUsername() {
+        String username = enterUsername.getText();
+        System.out.println(username + " is an invalid Username.");
+        enterUsername.setBorder(BorderFactory.createLineBorder(Color.red));
+    }
+
+    public void informInvalidPassword() {
+        String password = enterPassword.getText();
+        System.out.println(password + " is an invalid Password.");
+        enterPassword.setBorder(BorderFactory.createLineBorder(Color.red));
+    }
+
 }

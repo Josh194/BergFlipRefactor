@@ -65,8 +65,18 @@ public class Controller {
             String password = loginView.getEnterPassword().getText();
             System.out.println("Login button was pressed!");
             System.out.println("Username: " + username + ". Password: " + password + ".");
-            loginView.closeLogin();
-            gameView.openGame(flipAL,logoutAL,submitFlipsAL,submitPredicAL,headsAL,tailsAL,submitBetAL,refreshAL);
+            if(username.length() < 8 & password.length() < 8) {
+                loginView.informInvalidUsername();
+                loginView.informInvalidPassword();
+            } else if(username.length() < 8) {
+                loginView.informInvalidUsername();
+            } else if(password.length() < 8) {
+                loginView.informInvalidPassword();
+            } else {
+                loginView.closeLogin();
+                gameView.openGame(flipAL,logoutAL,submitFlipsAL,submitPredicAL,headsAL,tailsAL,submitBetAL,refreshAL);
+            }
+
         }
     }
 

@@ -6,12 +6,7 @@ public class PasswordView {
     private JTextField passUsername;
     private JTextField oldPassword;
     private JTextField newPassword;
-
     private JFrame passwordFrame;
-
-    public PasswordView() {
-
-    }
 
     public JTextField getPassUsername() {
         return passUsername;
@@ -64,6 +59,14 @@ public class PasswordView {
     public void closeChangePassword() {
         System.out.println("Closing Change Password GUI...");
         passwordFrame.setVisible(false);
+    }
+
+    public void informNonexistentUsername() {
+
+    }
+
+    public void informIncorrectPassword() {
+
     }
 
 }
