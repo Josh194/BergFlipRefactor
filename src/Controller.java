@@ -65,18 +65,13 @@ public class Controller {
             String password = loginView.getEnterPassword().getText();
             System.out.println("Login button was pressed!");
             System.out.println("Username: " + username + ". Password: " + password + ".");
-            if(username.length() < 8 & password.length() < 8) {
-                loginView.informInvalidUsername();
-                loginView.informInvalidPassword();
-            } else if(username.length() < 8) {
-                loginView.informInvalidUsername();
-            } else if(password.length() < 8) {
-                loginView.informInvalidPassword();
-            } else {
+
+           if (model.checkLoginCredentials(username, password)) {
                 loginView.closeLogin();
                 gameView.openGame(flipAL,logoutAL,submitFlipsAL,submitPredicAL,headsAL,tailsAL,submitBetAL,refreshAL);
+            } else {
+                System.out.println("Invalid username or password");
             }
-
         }
     }
 
@@ -86,9 +81,15 @@ public class Controller {
             String username = loginView.getEnterUsername().getText();
             String password = loginView.getEnterPassword().getText();
             System.out.println("Register button was pressed!");
-            if (model.doesUserExist(username) && checkUserValidity(username, password)) {
-                model.addUser(username, password);
+
+            if (checkUserValidity(username, password)) {
+                if (model.doesUserExist(username)) {
+                    System.out.println("Username already taken");
+                } else {
+                    model.addUser(username, password);
+                }
             }
+
             System.out.println("Username: " + username + ". Password: " + password + ".");
         }
     }
@@ -101,6 +102,13 @@ public class Controller {
             passwordView.openChangePassword(confirmPassAL,cancelAL);
         }
     }
+
+//    private class closeErrorActionListener implements ActionListener {
+//        @Override
+//        public void actionPerformed(ActionEvent e) {
+//            ErrorView.closeErrorPopup();
+//        }
+//    }
 
     private class exitActionListener implements ActionListener {
         @Override
@@ -190,9 +198,19 @@ public class Controller {
             String username = passwordView.getPassUsername().getText();
             String oldPassword = passwordView.getOldPassword().getText();
             String newPassword = passwordView.getNewPassword().getText();
-            System.out.println("Changed password " + oldPassword + " for user " + username + " to be " + newPassword + ".");
-            passwordView.closeChangePassword();
-            loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
+
+            if (model.checkLoginCredentials(username, oldPassword)) {
+                System.out.println("Username or password is incorrect!");
+            } else if (model.doesUserExist(username)) {
+                System.out.println("Username does not exist!");
+            } else {
+                model.updatePassword(username, newPassword);
+                System.out.println("Changed password " + oldPassword + " for user " + username + " to be " + newPassword + ".");
+                passwordView.closeChangePassword();
+                loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
+            }
+
+
         }
     }
 
@@ -206,15 +224,15 @@ public class Controller {
     }
 
     private boolean checkUserValidity(String username, String password) {
-        if (username.isEmpty()) {
-            System.out.println("Username is empty!");
+       if (username.length() < 8) {
+            System.out.println("username is too short!");
+            loginView.informInvalidUsername();
+            return false;
+        } else if(password.length() < 8) {
+            System.out.println("password is too short!");
+            loginView.informInvalidPassword();
+            return false;
         }
-        if (password.isEmpty()) {
-            System.out.println("Password is empty!");
-        }
-        if (password.length() > 8) {
-            System.out.println("Password must be 8 characters or longer!");
-        }
-        return false;
+        return true;
     }
 }
