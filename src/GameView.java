@@ -84,7 +84,7 @@ public class GameView {
         tabs.add("LEADERBOARD", makeLeaderboardTab(refreshAL));
 
         gameFrame.add(tabs);
-        gameFrame.setSize(1000,750);
+        gameFrame.setSize(1100,850);
         gameFrame.setVisible(true);
         System.out.println("Game GUI Initialized Successfully!");
     }
@@ -109,19 +109,20 @@ public class GameView {
         ErrorView.makeErrorPopup(6,closeAL);
     }
 
-    //Compiles separate panels into one Game Tab
     private JPanel makeGameTab(ActionListener flipAL, ActionListener logoutAL, ActionListener submitFlipsAL, ActionListener submitPredicAL,
                                ActionListener headsAL, ActionListener tailsAL, ActionListener submitBetAL) {
         JPanel game = new JPanel();
-        game.setLayout(new GridLayout(4,1,0,5));
+        game.setLayout(new GridLayout(5,1,0,5));
 
         JPanel title = makeGameTitle();
+        JPanel gamemodes = makeGameModeSelect();
         JPanel betting = makeGameUserInput(submitFlipsAL, headsAL, tailsAL, submitPredicAL, submitBetAL);
         JPanel input = makeGameStatusText();
         JPanel buttons = makeGamePrimaryButtons(flipAL, logoutAL);
 
         //Compiling panels into Game Panel
         game.add(title);
+        game.add(gamemodes);
         game.add(betting);
         game.add(input);
         game.add(buttons);
@@ -159,6 +160,25 @@ public class GameView {
         title.add(playerBal);
 
         return title;
+    }
+
+    private JPanel makeGameModeSelect() {
+        JPanel gamemode = new JPanel();
+        gamemode.setLayout(new GridLayout(1,3));
+
+        JRadioButton singleCoinButton = new JRadioButton("Single Coin",true);
+        singleCoinButton.setHorizontalAlignment(JRadioButton.CENTER);
+        gamemode.add(singleCoinButton);
+
+        JRadioButton multipleCoinsButton = new JRadioButton("Multiple Coins");
+        multipleCoinsButton.setHorizontalAlignment(JRadioButton.CENTER);
+        gamemode.add(multipleCoinsButton);
+
+        JRadioButton coinAndDie = new JRadioButton("Coin & Dice");
+        coinAndDie.setHorizontalAlignment(JRadioButton.CENTER);
+        gamemode.add(coinAndDie);
+
+        return gamemode;
     }
 
     private JPanel makeGameUserInput(ActionListener submitFlipsAL, ActionListener headsAL, ActionListener tailsAL,
