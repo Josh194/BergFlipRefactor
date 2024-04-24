@@ -14,6 +14,7 @@ public class GameView {
     private JLabel flipStatusLabel;
 
     private boolean flipStatus = false;
+    private int wallet = 0;
     private JFrame gameFrame;
     private DefaultListModel<String> listModel;
 
@@ -71,8 +72,10 @@ public class GameView {
         flipStatus = true;
     }
 
-    public void openGame(ActionListener flipAL, ActionListener logoutAL, ActionListener submitFlipsAL, ActionListener submitPredicAL,
-                         ActionListener headsAL, ActionListener tailsAL, ActionListener submitBetAL, ActionListener refreshAL) {
+    public void openGame(ActionListener flipAL, ActionListener logoutAL, ActionListener submitFlipsAL,
+                         ActionListener submitPredicAL, ActionListener headsAL, ActionListener tailsAL,
+                         ActionListener submitBetAL,ActionListener refreshAL) {
+        //wallet = balance;
         System.out.println("Initializing Game GUI...");
         gameFrame = new JFrame("Coin Flip Game");
         JTabbedPane tabs = new JTabbedPane();
@@ -128,7 +131,7 @@ public class GameView {
 
     private JPanel makeGameTitle() {
         JPanel title = new JPanel();
-        title.setLayout(new GridLayout(4,1));
+        title.setLayout(new GridLayout(5,1));
 
         JLabel titleLabel = new JLabel("COIN FLIP GAME");
         titleLabel.setHorizontalAlignment(JLabel.CENTER);
@@ -150,6 +153,10 @@ public class GameView {
         title.add(instructions1);
         title.add(instructions2);
         title.add(instructions3);
+
+        JLabel playerBal = new JLabel("Your Balance: $" + wallet);
+        playerBal.setHorizontalAlignment(JLabel.CENTER);
+        title.add(playerBal);
 
         return title;
     }

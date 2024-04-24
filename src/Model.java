@@ -137,4 +137,9 @@ public class Model {
         }
         return false;
     }
+
+    public int getWalletBalance() {
+        String tempBal = "100";
+        return Integer.parseInt(tempBal);
+    }
 }
