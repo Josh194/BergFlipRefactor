@@ -35,6 +35,9 @@ public class ErrorView {
                     errorMessage2 = new JLabel("Your bet must be greater than 0, and less than or equal to the " +
                             "amount left in your wallet.");
                     break;
+            case 7: errorMessage1 = new JLabel("Username provided already exists.");
+                    errorMessage2 = new JLabel("This Username is already taken. Try a different username.");
+                    break;
         }
 
         errorMessage1.setHorizontalAlignment(JLabel.CENTER);

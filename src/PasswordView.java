@@ -62,22 +62,16 @@ public class PasswordView {
     }
 
     public void informUsernameDoesNotExist(ActionListener closeAL) {
-        String username = passUsername.getText();
-        System.out.println("Username " + username + " does not exist.");
         passUsername.setBorder(BorderFactory.createLineBorder(Color.red));
         ErrorView.makeErrorPopup(2,closeAL);
     }
 
     public void informIncorrectPassword(ActionListener closeAL) {
-        String password = oldPassword.getText();
-        System.out.println(password + " is the incorrect Password.");
         oldPassword.setBorder(BorderFactory.createLineBorder(Color.red));
         ErrorView.makeErrorPopup(3,closeAL);
     }
 
     public void informInvalidPassword(ActionListener closeAL) {
-        String password = newPassword.getText();
-        System.out.println(password + " is an invalid Password.");
         newPassword.setBorder(BorderFactory.createLineBorder(Color.red));
         ErrorView.makeErrorPopup(1,closeAL);
     }

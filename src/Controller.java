@@ -6,6 +6,7 @@ public class Controller {
     private final GameView gameView;
     private final PasswordView passwordView;
     private final Model model;
+    private final closeErrorActionListener closeAL;
 
     //Login GUI ActionListeners
     private final loginActionListener loginAL;
@@ -52,6 +53,7 @@ public class Controller {
         //Leaderboard GUI ActionListeners
         refreshAL = new refreshActionListener();
 
+        closeAL = new closeErrorActionListener();
         loginView = new LoginView(loginAL,registerAL,passwordAL,exitAL);
         passwordView = new PasswordView();
         gameView = new GameView();
@@ -65,18 +67,13 @@ public class Controller {
             String password = loginView.getEnterPassword().getText();
             System.out.println("Login button was pressed!");
             System.out.println("Username: " + username + ". Password: " + password + ".");
-            if(username.length() < 8 & password.length() < 8) {
-                loginView.informInvalidUsername();
-                loginView.informInvalidPassword();
-            } else if(username.length() < 8) {
-                loginView.informInvalidUsername();
-            } else if(password.length() < 8) {
-                loginView.informInvalidPassword();
-            } else {
+
+           if (model.checkLoginCredentials(username, password)) {
                 loginView.closeLogin();
                 gameView.openGame(flipAL,logoutAL,submitFlipsAL,submitPredicAL,headsAL,tailsAL,submitBetAL,refreshAL);
+            } else {
+                System.out.println("Invalid username or password");
             }
-
         }
     }
 
@@ -86,9 +83,16 @@ public class Controller {
             String username = loginView.getEnterUsername().getText();
             String password = loginView.getEnterPassword().getText();
             System.out.println("Register button was pressed!");
-            if (model.doesUserExist(username) && checkUserValidity(username, password)) {
-                model.addUser(username, password);
+
+            if (checkUserValidity(username, password)) {
+                if (model.doesUserExist(username)) {
+                    System.out.println("Username already taken");
+                    loginView.informUsernameAlreadyExists(closeAL);
+                } else {
+                    model.addUser(username, password);
+                }
             }
+
             System.out.println("Username: " + username + ". Password: " + password + ".");
         }
     }
@@ -100,6 +104,13 @@ public class Controller {
             loginView.closeLogin();
             passwordView.openChangePassword(confirmPassAL,cancelAL);
         }
+    }
+
+    private class closeErrorActionListener implements ActionListener {
+        @Override
+          public void actionPerformed(ActionEvent e) {
+              ErrorView.closeErrorPopup();
+          }
     }
 
     private class exitActionListener implements ActionListener {
@@ -141,7 +152,11 @@ public class Controller {
         public void actionPerformed(ActionEvent e) {
             int totalFlips = Integer.parseInt(gameView.getNumOfFlips().getText());
             System.out.println("Coin will flip " + totalFlips + " times!");
-            gameView.updateFlips();
+            if(totalFlips > 5 | totalFlips < 0) {
+                gameView.informInvalidFlips(closeAL);
+            } else {
+                gameView.updateFlips();
+            }
         }
     }
 
@@ -164,9 +179,14 @@ public class Controller {
     private class submitPredictionActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            int totalFlips = Integer.parseInt(gameView.getNumOfFlips().getText());
             int prediction = Integer.parseInt(gameView.getPrediction().getText());
             System.out.println("Your prediction is that " + prediction + " coins will land correctly!");
-            gameView.updatePrediction();
+            if(prediction > totalFlips | prediction < 0) {
+                gameView.informInvalidPrediction(closeAL);
+            } else {
+                gameView.updatePrediction();
+            }
         }
     }
 
@@ -180,6 +200,7 @@ public class Controller {
             }
             else {
                 System.out.println("That is an invalid bet! You have to bet at least $1.");
+                gameView.informInvalidBet(closeAL);
             }
         }
     }
@@ -190,9 +211,20 @@ public class Controller {
             String username = passwordView.getPassUsername().getText();
             String oldPassword = passwordView.getOldPassword().getText();
             String newPassword = passwordView.getNewPassword().getText();
-            System.out.println("Changed password " + oldPassword + " for user " + username + " to be " + newPassword + ".");
-            passwordView.closeChangePassword();
-            loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
+
+            if (model.checkLoginCredentials(username, oldPassword)) {
+                System.out.println("Username or password is incorrect!");
+            } else if (model.doesUserExist(username)) {
+                System.out.println("Username does not exist!");
+                passwordView.informUsernameDoesNotExist(closeAL);
+            } else {
+                model.updatePassword(username, newPassword);
+                System.out.println("Changed password " + oldPassword + " for user " + username + " to be " + newPassword + ".");
+                passwordView.closeChangePassword();
+                loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
+            }
+
+
         }
     }
 
@@ -206,15 +238,15 @@ public class Controller {
     }
 
     private boolean checkUserValidity(String username, String password) {
-        if (username.isEmpty()) {
-            System.out.println("Username is empty!");
-        }
-        if (password.isEmpty()) {
-            System.out.println("Password is empty!");
-        }
-        if (password.length() > 8) {
-            System.out.println("Password must be 8 characters or longer!");
-        }
-        return false;
+       if (username.length() < 8) {
+            System.out.println("username is too short!");
+            loginView.informInvalidUsername(closeAL);
+            return false;
+       } else if(password.length() < 8) {
+            System.out.println("password is too short!");
+            loginView.informInvalidPassword(closeAL);
+            return false;
+       }
+       return true;
     }
 }

@@ -92,22 +92,16 @@ public class GameView {
     }
 
     public void informInvalidFlips(ActionListener closeAL) {
-        int flips = Integer.parseInt(numOfFlips.getText());
-        System.out.println(flips + " is an invalid number of flips.");
         numOfFlips.setBorder(BorderFactory.createLineBorder(Color.red));
         ErrorView.makeErrorPopup(4,closeAL);
     }
 
     public void informInvalidPrediction(ActionListener closeAL) {
-        int predict = Integer.parseInt(prediction.getText());
-        System.out.println(predict + " is an invalid prediction.");
         prediction.setBorder(BorderFactory.createLineBorder(Color.red));
         ErrorView.makeErrorPopup(5,closeAL);
     }
 
     public void informInvalidBet(ActionListener closeAL) {
-        int bet = Integer.parseInt(bettingAmount.getText());
-        System.out.println(bet + " is an invalid bet.");
         bettingAmount.setBorder(BorderFactory.createLineBorder(Color.red));
         ErrorView.makeErrorPopup(6,closeAL);
     }
