@@ -83,15 +83,15 @@ public class ClientGUI {
             writer.println("login");
             sendLoginInfoToServer(username, password);
 
-            loginView.closeLogin();
-            GameView.updateWallet(100);
-            gameView.openGame(flipAL,logoutAL,headsAL,tailsAL,submitBetAL,refreshAL);
-            /*
+            //loginView.closeLogin();
+            //GameView.updateWallet(100);
+            //gameView.openGame(flipAL,logoutAL,headsAL,tailsAL,submitBetAL,refreshAL);
+
             try {
                 if (reader.readLine().equals("valid user")) {
                     loginView.closeLogin();
-                    gameView.updateWallet(100); // PLACEHOLDER
-                                                // ADD BALANCE TO USERS IN MODEL DATABASE
+                    GameView.updateWallet(100); // PLACEHOLDER
+                                                           // ADD BALANCE TO USERS IN MODEL DATABASE
                     gameView.openGame(flipAL,logoutAL,headsAL,tailsAL,submitBetAL,refreshAL);
                 } else {
                     //TODO: Add more error checking/different error message.
@@ -100,7 +100,7 @@ public class ClientGUI {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-             */
+
 
         }
     }
