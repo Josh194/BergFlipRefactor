@@ -14,6 +14,8 @@ public class GameView {
     private JLabel flipStatusLabel;
 
     private boolean flipStatus = false;
+
+    private String predictedUserResult;
     private int wallet = 0;
     private JFrame gameFrame;
     private DefaultListModel<String> listModel;
@@ -50,9 +52,11 @@ public class GameView {
     }
 
     public void updateHeadsOrTails(boolean heads) {
-        if(heads) {
+        if (heads) {
+            predictedUserResult = "HEADS";
             headsOrTails.setText("Predicted Result: HEADS");
         } else {
+            predictedUserResult = "TAILS";
             headsOrTails.setText("Predicted Result: TAILS");
         }
     }
@@ -292,4 +296,7 @@ public class GameView {
         return leaderboard;
     }
 
+    public String getPredictedUserResult() {
+        return predictedUserResult;
+    }
 }

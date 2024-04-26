@@ -7,20 +7,18 @@ public class Server {
     public static void main(String[] args) {
         try {
             ServerSocket coinFlipServer = new ServerSocket(6000);
-            String msg;
 
             while (true) {
-                Socket socket = null;
-
                 try {
-                    socket = coinFlipServer.accept();
+                    Socket socket = coinFlipServer.accept();
                     System.out.println("Connected to client: " + socket.toString());
 
                     BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     PrintWriter writer = new PrintWriter(socket.getOutputStream());
+                    Model model = new Model();
 
                     System.out.println("Creating thread for client...");
-                    Thread clientThread = new ClientTreadManager(reader, writer, socket);
+                    Thread clientThread = new ClientTreadManager(reader, writer, socket, model);
                     clientThread.start();
                 } catch (Exception e) {
                     e.printStackTrace();
@@ -29,5 +27,6 @@ public class Server {
         } catch (IOException e) {
             e.printStackTrace();
         }
+
     }
 }
