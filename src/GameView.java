@@ -3,18 +3,16 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class GameView {
-    private JTextField numOfFlips;
-    private JTextField prediction;
     private JTextField bettingAmount;
 
-    private JLabel userFlips;
     private JLabel headsOrTails;
-    private JLabel userPrediction;
     private JLabel userBet;
     private JLabel flipStatusLabel;
 
     private boolean flipStatus = false;
-    private int wallet = 0;
+
+    private String predictedUserResult;
+    private static int wallet = 0;
     private JFrame gameFrame;
     private DefaultListModel<String> listModel;
 
@@ -24,47 +22,40 @@ public class GameView {
 
     /*
      * TODO
-     * Add functionality for dice betting
-     *       -> Bubble to select coin, or coin and dice
-     *       -> Coin and dice bubble edits GUI accordingly
-     *              -> Adds another panel for dice bets
-     *              -> Updates text in other panels
+     * Implement functionality for GUI bubbles
+     *     -> Switch GUI between Coin Betting and Coin & Dice Betting
      * Add coin flip animation
      */
 
-    public JTextField getNumOfFlips() {
-        return numOfFlips;
-    }
-
-    public JTextField getPrediction() {
-        return prediction;
+    public String getPredictedUserResult() {
+        return predictedUserResult;
     }
 
     public JTextField getBettingAmount() {
         return bettingAmount;
     }
 
-    public void updateFlips() {
-        int flips = Integer.parseInt(numOfFlips.getText());
-        userFlips.setText("Times to Flip: " + flips);
+    public static int getWallet() {
+        return wallet;
     }
 
-    public void updateHeadsOrTails(boolean heads) {
-        if(heads) {
+    public void updatePredictedUserResult(boolean heads) {
+        if (heads) {
+            predictedUserResult = "HEADS";
             headsOrTails.setText("Predicted Result: HEADS");
         } else {
+            predictedUserResult = "TAILS";
             headsOrTails.setText("Predicted Result: TAILS");
         }
     }
 
-    public void updatePrediction() {
-        int predict = Integer.parseInt(prediction.getText());
-        userPrediction.setText("Predicted Number of Times Correct: " + predict);
-    }
-
-    public void updateBet() {
+    public void updateBettingAmount() {
         int bet = Integer.parseInt(bettingAmount.getText());
         userBet.setText("Bet: $" + bet);
+    }
+
+    public static void updateWallet(int newBalance) {
+        wallet = newBalance;
     }
 
     public void updateFlipStatus() {
@@ -72,15 +63,14 @@ public class GameView {
         flipStatus = true;
     }
 
-    public void openGame(ActionListener flipAL, ActionListener logoutAL, ActionListener submitFlipsAL,
-                         ActionListener submitPredicAL, ActionListener headsAL, ActionListener tailsAL,
+    public void openGame(ActionListener flipAL, ActionListener logoutAL, ActionListener headsAL, ActionListener tailsAL,
                          ActionListener submitBetAL,ActionListener refreshAL) {
         //wallet = balance;
         System.out.println("Initializing Game GUI...");
         gameFrame = new JFrame("Coin Flip Game");
         JTabbedPane tabs = new JTabbedPane();
 
-        tabs.add("GAME", makeGameTab(flipAL,logoutAL,submitFlipsAL,submitPredicAL,headsAL,tailsAL,submitBetAL));
+        tabs.add("GAME", makeGameTab(flipAL,logoutAL,headsAL,tailsAL,submitBetAL));
         tabs.add("LEADERBOARD", makeLeaderboardTab(refreshAL));
 
         gameFrame.add(tabs);
@@ -94,29 +84,23 @@ public class GameView {
         gameFrame.setVisible(false);
     }
 
-    public void informInvalidFlips(ActionListener closeAL) {
-        numOfFlips.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(4,closeAL);
-    }
-
-    public void informInvalidPrediction(ActionListener closeAL) {
-        prediction.setBorder(BorderFactory.createLineBorder(Color.red));
+    public void informInvalidBetNonpositive(ActionListener closeAL) {
+        bettingAmount.setBorder(BorderFactory.createLineBorder(Color.red));
         ErrorView.makeErrorPopup(5,closeAL);
     }
 
-    public void informInvalidBet(ActionListener closeAL) {
+    public void informInvalidBetTooLarge(ActionListener closeAL) {
         bettingAmount.setBorder(BorderFactory.createLineBorder(Color.red));
         ErrorView.makeErrorPopup(6,closeAL);
     }
 
-    private JPanel makeGameTab(ActionListener flipAL, ActionListener logoutAL, ActionListener submitFlipsAL, ActionListener submitPredicAL,
-                               ActionListener headsAL, ActionListener tailsAL, ActionListener submitBetAL) {
+    private JPanel makeGameTab(ActionListener flipAL, ActionListener logoutAL, ActionListener headsAL, ActionListener tailsAL, ActionListener submitBetAL) {
         JPanel game = new JPanel();
         game.setLayout(new GridLayout(5,1,0,5));
 
         JPanel title = makeGameTitle();
         JPanel gamemodes = makeGameModeSelect();
-        JPanel betting = makeGameUserInput(submitFlipsAL, headsAL, tailsAL, submitPredicAL, submitBetAL);
+        JPanel betting = makeGameUserInput(headsAL, tailsAL, submitBetAL);
         JPanel input = makeGameStatusText();
         JPanel buttons = makeGamePrimaryButtons(flipAL, logoutAL);
 
@@ -139,8 +123,8 @@ public class GameView {
         titleLabel.setFont(new Font("Arial",Font.PLAIN,40));
         title.add(titleLabel);
 
-        String instructText1 = "Choose how many times you want the coin to flip. Then, decide whether you want to guess heads or tails.";
-        String instructText2 = "Then, make a guess on how many times the coin lands on the side you predicted.";
+        String instructText1 = "First, choose whether you want to bet on just a coin, or a coin and a 6-sided die.";
+        String instructText2 = "Then, predict whether the coin lands on Heads or Tails, and what you think the die will land on.";
         String instructText3 = "Finally, submit an amount on how much money you'd like to bet that your prediction is correct.";
         JLabel instructions1 = new JLabel(instructText1);
         JLabel instructions2 = new JLabel(instructText2);
@@ -164,15 +148,11 @@ public class GameView {
 
     private JPanel makeGameModeSelect() {
         JPanel gamemode = new JPanel();
-        gamemode.setLayout(new GridLayout(1,3));
+        gamemode.setLayout(new GridLayout(1,2));
 
         JRadioButton singleCoinButton = new JRadioButton("Single Coin",true);
         singleCoinButton.setHorizontalAlignment(JRadioButton.CENTER);
         gamemode.add(singleCoinButton);
-
-        JRadioButton multipleCoinsButton = new JRadioButton("Multiple Coins");
-        multipleCoinsButton.setHorizontalAlignment(JRadioButton.CENTER);
-        gamemode.add(multipleCoinsButton);
 
         JRadioButton coinAndDie = new JRadioButton("Coin & Dice");
         coinAndDie.setHorizontalAlignment(JRadioButton.CENTER);
@@ -181,19 +161,9 @@ public class GameView {
         return gamemode;
     }
 
-    private JPanel makeGameUserInput(ActionListener submitFlipsAL, ActionListener headsAL, ActionListener tailsAL,
-                                     ActionListener submitPredicAL, ActionListener submitBetAL) {
+    private JPanel makeGameUserInput(ActionListener headsAL, ActionListener tailsAL, ActionListener submitBetAL) {
         JPanel betting = new JPanel();
-        betting.setLayout(new GridLayout(4,3,5,15));
-
-        JLabel flipsPrompt = new JLabel("How many times should the coin be flipped?");
-        flipsPrompt.setHorizontalAlignment(JLabel.CENTER);
-        numOfFlips = new JTextField();
-        JButton submitFlipsButton = new JButton("Submit Flips");
-        submitFlipsButton.addActionListener(submitFlipsAL);
-        betting.add(flipsPrompt);
-        betting.add(numOfFlips);
-        betting.add(submitFlipsButton);
+        betting.setLayout(new GridLayout(2,3,5,15));
 
         JLabel headsOrTails = new JLabel("Will you guess Heads or Tails?");
         headsOrTails.setHorizontalAlignment(JLabel.CENTER);
@@ -204,15 +174,6 @@ public class GameView {
         betting.add(headsOrTails);
         betting.add(headsButton);
         betting.add(tailsButton);
-
-        JLabel resultsPrompt = new JLabel("How many coins will land on the side you predicted?");
-        resultsPrompt.setHorizontalAlignment(JLabel.CENTER);
-        prediction = new JTextField();
-        JButton submitPredictionButton = new JButton("Submit Prediction");
-        submitPredictionButton.addActionListener(submitPredicAL);
-        betting.add(resultsPrompt);
-        betting.add(prediction);
-        betting.add(submitPredictionButton);
 
         JLabel betPrompt = new JLabel("How much money do you want to bet?");
         betPrompt.setHorizontalAlignment(JLabel.CENTER);
@@ -228,19 +189,11 @@ public class GameView {
 
     private JPanel makeUserInputText() {
         JPanel input = new JPanel();
-        input.setLayout(new GridLayout(2,2,5,5));
-
-        userFlips = new JLabel("Times to Flip: -");
-        userFlips.setHorizontalAlignment(JLabel.CENTER);
-        input.add(userFlips);
+        input.setLayout(new GridLayout(1,2,5,5));
 
         headsOrTails = new JLabel("Predicted Result: -");
         headsOrTails.setHorizontalAlignment(JLabel.CENTER);
         input.add(headsOrTails);
-
-        userPrediction = new JLabel("Predicted Number of Times Correct: -");
-        userPrediction.setHorizontalAlignment(JLabel.CENTER);
-        input.add(userPrediction);
 
         userBet = new JLabel("Bet: -");
         userBet.setHorizontalAlignment(JLabel.CENTER);

@@ -12,31 +12,26 @@ public class ErrorView {
         errorFrame = new JFrame("An Error Occurred");
         errorFrame.setLayout(new GridLayout(3,1));
         switch (error) {
-            case 0: errorMessage1 = new JLabel("New Username is invalid.");
+            case 0: errorMessage1 = new JLabel("Username provided already exists.");
+                    errorMessage2 = new JLabel("This Username is already taken. Try a different username.");
+                    break;
+            case 1: errorMessage1 = new JLabel("New Username is invalid.");
                     errorMessage2 = new JLabel("Username must be at least 8 characters.");
                     break;
-            case 1: errorMessage1 = new JLabel("New Password is invalid.");
+            case 2: errorMessage1 = new JLabel("New Password is invalid.");
                     errorMessage2 = new JLabel("Password must be at least 8 characters.");
                     break;
-            case 2: errorMessage1 = new JLabel("Username provided does not exist.");
+            case 3: errorMessage1 = new JLabel("Username provided does not exist.");
                     errorMessage2 = new JLabel("Make sure you typed in the correct Username.");
                     break;
-            case 3: errorMessage1 = new JLabel("Incorrect Password.");
+            case 4: errorMessage1 = new JLabel("Incorrect Password.");
                     errorMessage2 = new JLabel("Make sure you typed in the Password correctly.");
                     break;
-            case 4: errorMessage1 = new JLabel("Requested number of flips is invalid.");
-                    errorMessage2 = new JLabel("The coin can only be flipped between 1 and 5.");
-                    break;
-            case 5: errorMessage1 = new JLabel("Predicted number of correctly guesses flips is invalid.");
-                    errorMessage2 = new JLabel("The predicted number must be less than or equal to the number " +
-                            "of times the coin will flip.");
+            case 5: errorMessage1 = new JLabel("Amount to bet is invalid.");
+                    errorMessage2 = new JLabel("Your bet must be greater than 0.");
                     break;
             case 6: errorMessage1 = new JLabel("Amount to bet is invalid.");
-                    errorMessage2 = new JLabel("Your bet must be greater than 0, and less than or equal to the " +
-                            "amount left in your wallet.");
-                    break;
-            case 7: errorMessage1 = new JLabel("Username provided already exists.");
-                    errorMessage2 = new JLabel("This Username is already taken. Try a different username.");
+                    errorMessage2 = new JLabel("Your bet less than your current balance: " + GameView.getWallet() + ".");
                     break;
         }
 

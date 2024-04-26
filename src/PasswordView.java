@@ -63,17 +63,17 @@ public class PasswordView {
 
     public void informUsernameDoesNotExist(ActionListener closeAL) {
         passUsername.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(2,closeAL);
+        ErrorView.makeErrorPopup(3,closeAL);
     }
 
     public void informIncorrectPassword(ActionListener closeAL) {
         oldPassword.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(3,closeAL);
+        ErrorView.makeErrorPopup(4,closeAL);
     }
 
     public void informInvalidPassword(ActionListener closeAL) {
         newPassword.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(1,closeAL);
+        ErrorView.makeErrorPopup(2,closeAL);
     }
 
 }

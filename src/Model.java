@@ -45,7 +45,6 @@ public class Model {
             stmt.setString(1, username);
             stmt.setString(2, password);
             stmt.executeUpdate();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -127,11 +126,11 @@ public class Model {
             stmt.setString(2, password);
             ResultSet resultSet = stmt.executeQuery();
 
-            if (resultSet.next() && (resultSet.getString(1).equals(username)) && (resultSet.getString(2).equals(password))) {
-                return true;
+            if (username.isEmpty() || password.isEmpty()) {
+                return false;
+            } else if (resultSet.next() && (resultSet.getString(1).equals(username)) && (resultSet.getString(2).equals(password))) {
+               return true;
             }
-
-            System.out.println(resultSet.getString(1));
         } catch (SQLException e) {
             e.printStackTrace();
         }

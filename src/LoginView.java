@@ -62,27 +62,27 @@ public class LoginView {
 
     public void informInvalidUsername(ActionListener closeAL) {
         enterUsername.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(0,closeAL);
+        ErrorView.makeErrorPopup(1,closeAL);
     }
 
     public void informInvalidPassword(ActionListener closeAL) {
         enterPassword.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(1,closeAL);
+        ErrorView.makeErrorPopup(2,closeAL);
     }
 
     public void informUsernameAlreadyExists(ActionListener closeAL) {
         enterUsername.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(7,closeAL);
+        ErrorView.makeErrorPopup(0,closeAL);
     }
 
     public void informUsernameDoesNotExist(ActionListener closeAL) {
         enterUsername.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(2,closeAL);
+        ErrorView.makeErrorPopup(3,closeAL);
     }
 
     public void informIncorrectPassword(ActionListener closeAL) {
         enterPassword.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(3,closeAL);
+        ErrorView.makeErrorPopup(4,closeAL);
     }
 
 }
