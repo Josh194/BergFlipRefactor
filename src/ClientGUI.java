@@ -163,9 +163,7 @@ public class ClientGUI {
             requestServerCoinFlip(gameView.getPredictedUserResult(), gameView.getBettingAmount().getText());
             try {
                 serverMsg = reader.readLine();
-                if (serverMsg.equals("success")) {
-                    System.out.println("coin flipped");
-                }
+
             } catch (IOException ex) {
                 ex.printStackTrace();
             }

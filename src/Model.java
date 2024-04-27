@@ -20,7 +20,8 @@ public class Model {
             String cmd = "CREATE TABLE IF NOT EXISTS userData (" +
                     "userID INTEGER PRIMARY KEY," +
                     "username STRING," +
-                    "password STRING);";
+                    "password STRING +" +
+                    "balance INTEGER);";
             conn.createStatement().executeUpdate(cmd);
         } catch (SQLException e) {
             e.printStackTrace();
@@ -55,16 +56,6 @@ public class Model {
             PreparedStatement stmt = conn.prepareStatement("UPDATE userData SET password = ? WHERE username = ?");
             stmt.setString(1, newPassword);
             stmt.setString(2, username);
-            stmt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
-    }
-
-    void deleteUser(String username) {
-        try {
-            PreparedStatement stmt = conn.prepareStatement("DELETE FROM userData WHERE username = ?");
-            stmt.setString(1, username);
             stmt.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
