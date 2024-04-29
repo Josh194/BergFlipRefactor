@@ -7,8 +7,7 @@ public class ClientGUI {
     private final LoginView loginView;
     private final GameView gameView;
     private final PasswordView passwordView;
-    private final closeErrorActionListener closeErrorAL;
-    private final closeSuccessActionListener closeSuccessAL;
+    private final closeErrorActionListener closeAL;
 
     private Socket socket = null;
     private BufferedReader reader = null;
@@ -17,7 +16,6 @@ public class ClientGUI {
     private Boolean validBet = false;
     private String username;
     private double balance;
-
     //Login GUI ActionListeners
     private final loginActionListener loginAL;
     private final registerActionListener registerAL;
@@ -69,8 +67,7 @@ public class ClientGUI {
         //Leaderboard GUI ActionListeners
         refreshAL = new refreshActionListener();
 
-        closeErrorAL = new closeErrorActionListener();
-        closeSuccessAL = new closeSuccessActionListener();
+        closeAL = new closeErrorActionListener();
         loginView = new LoginView(loginAL,registerAL,passwordAL,exitAL);
         passwordView = new PasswordView();
         gameView = new GameView();
@@ -121,9 +118,9 @@ public class ClientGUI {
 
             if (serverMsg.equals("username already taken")) {
                 //TODO: Need more extensive error checking.
-                loginView.informUsernameAlreadyExists(closeErrorAL);
+                loginView.informUsernameAlreadyExists(closeAL);
             } else if (serverMsg.equals("registered user")) {
-                SuccessView.makeSuccessPopup(0,closeSuccessAL);
+                //TODO: Add conformation that user was registered in client GUI
                 System.out.println("Successfully registered user!");
             }
         }
@@ -141,14 +138,7 @@ public class ClientGUI {
     private class closeErrorActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            ErrorView.closeErrorPopup();
-        }
-    }
-
-    private class closeSuccessActionListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            SuccessView.closeSuccessPopup();
+          ErrorView.closeErrorPopup();
         }
     }
 
@@ -226,11 +216,11 @@ public class ClientGUI {
                 validBet = true;
             } else if(bet < 1) {
                 System.out.println("That is an invalid bet! You have to bet at least $1.");
-                gameView.informInvalidBetNonpositive(closeErrorAL);
+                gameView.informInvalidBetNonpositive(closeAL);
                 validBet = false;
             } else {
                 System.out.println("That is an invalid bet! You have to less than your balance.");
-                gameView.informInvalidBetTooLarge(closeErrorAL);
+                gameView.informInvalidBetTooLarge(closeAL);
                 validBet = false;
             }
         }
@@ -258,7 +248,6 @@ public class ClientGUI {
             } else {
                 passwordView.closeChangePassword();
                 loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
-                SuccessView.makeSuccessPopup(1,closeSuccessAL);
             }
         }
     }
