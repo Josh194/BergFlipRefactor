@@ -17,7 +17,6 @@ public class ClientGUI {
     private Boolean validBet = false;
     private String username;
     private double balance;
-
     //Login GUI ActionListeners
     private final loginActionListener loginAL;
     private final registerActionListener registerAL;
@@ -258,7 +257,6 @@ public class ClientGUI {
             } else {
                 passwordView.closeChangePassword();
                 loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
-                SuccessView.makeSuccessPopup(1,closeSuccessAL);
             }
         }
     }
