@@ -3,15 +3,22 @@ import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class GameView {
-    private JTextField bettingAmount;
+    private JTabbedPane tabs;
+    private JTextField coinBettingAmount;
+    private JTextField diceBettingAmount;
+    private JTextField dicePrediction;
 
     private JLabel headsOrTails;
-    private JLabel userBet;
+    private JLabel userCoinBet;
+    private JLabel userDiceBet;
+    private JLabel diceResult;
     private JLabel flipStatusLabel;
+    private JLabel rollStatusLabel;
     private final JLabel playerBal = new JLabel();
-    private boolean flipStatus = false;
 
     private String predictedUserResult;
+    private int predictedDiceResult = 0;
+    private String gamemode = "COIN";
     private static double wallet = 0;
     private JFrame gameFrame;
     private DefaultListModel<String> listModel;
@@ -20,19 +27,20 @@ public class GameView {
         listModel = new DefaultListModel<String>();
     }
 
-    /*
-     * TODO
-     * Implement functionality for GUI bubbles
-     *     -> Switch GUI between Coin Betting and Coin & Dice Betting
-     * Add coin flip animation
-     */
-
     public String getPredictedUserResult() {
         return predictedUserResult;
     }
 
-    public JTextField getBettingAmount() {
-        return bettingAmount;
+    public JTextField getDicePrediction() {
+        return dicePrediction;
+    }
+
+    public JTextField getCoinBettingAmount() {
+        return coinBettingAmount;
+    }
+
+    public JTextField getDiceBettingAmount() {
+        return diceBettingAmount;
     }
 
     public static double getWallet() {
@@ -49,9 +57,37 @@ public class GameView {
         }
     }
 
-    public void updateBettingAmount() {
-        int bet = Integer.parseInt(bettingAmount.getText());
-        userBet.setText("Bet: $" + bet);
+    public void updateDicePredictedResult(int side) {
+        switch (side) {
+            case 1: diceResult.setText("Predicted Result: 1");
+                    predictedDiceResult = 1;
+                    break;
+            case 2: diceResult.setText("Predicted Result: 2");
+                    predictedDiceResult = 2;
+                    break;
+            case 3: diceResult.setText("Predicted Result: 3");
+                    predictedDiceResult = 3;
+                    break;
+            case 4: diceResult.setText("Predicted Result: 4");
+                    predictedDiceResult = 4;
+                    break;
+            case 5: diceResult.setText("Predicted Result: 5");
+                    predictedDiceResult = 5;
+                    break;
+            case 6: diceResult.setText("Predicted Result: 6");
+                    predictedDiceResult = 6;
+                    break;
+        }
+    }
+
+    public void updateCoinBet() {
+        int bet = Integer.parseInt(coinBettingAmount.getText());
+        userCoinBet.setText("Bet: $" + bet);
+    }
+
+    public void updateDiceBet() {
+        int bet = Integer.parseInt(diceBettingAmount.getText());
+        userDiceBet.setText("Bet: $" + bet);
     }
 
     public void updateWallet(double newBalance) {
@@ -61,21 +97,24 @@ public class GameView {
 
     public void updateFlipStatus() {
         flipStatusLabel.setText("The coin was flipped!");
-        flipStatus = true;
     }
 
-    public void openGame(ActionListener flipAL, ActionListener logoutAL, ActionListener headsAL, ActionListener tailsAL,
-                         ActionListener submitBetAL,ActionListener refreshAL) {
-        //wallet = balance;
-        System.out.println("Initializing Game GUI...");
-        gameFrame = new JFrame("Coin Flip Game");
-        JTabbedPane tabs = new JTabbedPane();
+    public void updateRollStatus() {
+        rollStatusLabel.setText("The die was rolled!");
+    }
 
-        tabs.add("GAME", makeGameTab(flipAL,logoutAL,headsAL,tailsAL,submitBetAL));
+    public void openGame(ActionListener coinFlipAL, ActionListener rollDieAL, ActionListener logoutAL, ActionListener headsAL, ActionListener tailsAL,
+                         ActionListener submitCoinBetAL, ActionListener submitDiceBetAL,ActionListener refreshAL, ActionListener dicePredictionAL) {
+        System.out.println("Initializing Game GUI...");
+        gameFrame = new JFrame("Gambling Game");
+        tabs = new JTabbedPane();
+
+        tabs.add("COIN GAME", makeCoinGameTab(coinFlipAL,logoutAL,headsAL,tailsAL,submitCoinBetAL));
+        tabs.add("DICE GAME", makeDiceGameTab(dicePredictionAL,submitDiceBetAL,rollDieAL,logoutAL));
         tabs.add("LEADERBOARD", makeLeaderboardTab(refreshAL));
 
         gameFrame.add(tabs);
-        gameFrame.setSize(1100,850);
+        gameFrame.setSize(1000,750);
         gameFrame.setVisible(true);
         System.out.println("Game GUI Initialized Successfully!");
     }
@@ -86,36 +125,53 @@ public class GameView {
     }
 
     public void informInvalidBetNonpositive(ActionListener closeAL) {
-        bettingAmount.setBorder(BorderFactory.createLineBorder(Color.red));
+        coinBettingAmount.setBorder(BorderFactory.createLineBorder(Color.red));
         ErrorView.makeErrorPopup(5,closeAL);
     }
 
     public void informInvalidBetTooLarge(ActionListener closeAL) {
-        bettingAmount.setBorder(BorderFactory.createLineBorder(Color.red));
+        coinBettingAmount.setBorder(BorderFactory.createLineBorder(Color.red));
         ErrorView.makeErrorPopup(6,closeAL);
     }
 
-    private JPanel makeGameTab(ActionListener flipAL, ActionListener logoutAL, ActionListener headsAL, ActionListener tailsAL, ActionListener submitBetAL) {
+    private JPanel makeCoinGameTab(ActionListener flipCoinAL, ActionListener logoutAL, ActionListener headsAL,
+                                   ActionListener tailsAL, ActionListener submitCoinBetAL) {
         JPanel game = new JPanel();
-        game.setLayout(new GridLayout(5,1,0,5));
+        game.setLayout(new GridLayout(4,1,0,5));
 
-        JPanel title = makeGameTitle();
-        JPanel gamemodes = makeGameModeSelect();
-        JPanel betting = makeGameUserInput(headsAL, tailsAL, submitBetAL);
-        JPanel input = makeGameStatusText();
-        JPanel buttons = makeGamePrimaryButtons(flipAL, logoutAL);
+        JPanel title = makeCoinGameTitle();
+        JPanel betting = makeCoinGameUserInput(headsAL, tailsAL, submitCoinBetAL);
+        JPanel status = makeCoinGameStatus();
+        JPanel buttons = makeCoinGameButtons(flipCoinAL, logoutAL);
 
         //Compiling panels into Game Panel
         game.add(title);
-        game.add(gamemodes);
         game.add(betting);
-        game.add(input);
+        game.add(status);
         game.add(buttons);
 
         return game;
     }
 
-    private JPanel makeGameTitle() {
+    private JPanel makeDiceGameTab(ActionListener dicePredictionAL, ActionListener submitDiceBetAL, ActionListener rollDieAL, ActionListener logoutAL) {
+        JPanel game = new JPanel();
+        game.setLayout(new GridLayout(4,1,0,5));
+
+        JPanel title = makeDiceGameTitle();
+        JPanel betting = makeDiceGameUserInput(dicePredictionAL, submitDiceBetAL);
+        JPanel status = makeDiceGameStatus();
+        JPanel buttons = makeDiceGameButtons(rollDieAL, logoutAL);
+
+        //Compiling panels into Game Panel
+        game.add(title);
+        game.add(betting);
+        game.add(status);
+        game.add(buttons);
+
+        return game;
+    }
+
+    private JPanel makeCoinGameTitle() {
         JPanel title = new JPanel();
         title.setLayout(new GridLayout(5,1));
 
@@ -124,9 +180,9 @@ public class GameView {
         titleLabel.setFont(new Font("Arial",Font.PLAIN,40));
         title.add(titleLabel);
 
-        String instructText1 = "First, choose whether you want to bet on just a coin, or a coin and a 6-sided die.";
-        String instructText2 = "Then, predict whether the coin lands on Heads or Tails, and what you think the die will land on.";
-        String instructText3 = "Finally, submit an amount on how much money you'd like to bet that your prediction is correct.";
+        String instructText1 = "First, choose whether you think the coin will land on Heads or Tails.";
+        String instructText2 = "Then, place a bet on your prediction.";
+        String instructText3 = "Finally, flip the coin and see if you can win big!";
         JLabel instructions1 = new JLabel(instructText1);
         JLabel instructions2 = new JLabel(instructText2);
         JLabel instructions3 = new JLabel(instructText3);
@@ -140,29 +196,46 @@ public class GameView {
         title.add(instructions2);
         title.add(instructions3);
 
-        playerBal.setText("Your Balance: $" + wallet);;
+        playerBal.setText("Your Balance: $" + wallet);
         playerBal.setHorizontalAlignment(JLabel.CENTER);
         title.add(playerBal);
 
         return title;
     }
 
-    private JPanel makeGameModeSelect() {
-        JPanel gamemode = new JPanel();
-        gamemode.setLayout(new GridLayout(1,2));
+    private JPanel makeDiceGameTitle() {
+        JPanel title = new JPanel();
+        title.setLayout(new GridLayout(5,1));
 
-        JRadioButton singleCoinButton = new JRadioButton("Single Coin",true);
-        singleCoinButton.setHorizontalAlignment(JRadioButton.CENTER);
-        gamemode.add(singleCoinButton);
+        JLabel titleLabel = new JLabel("DICE GAME");
+        titleLabel.setHorizontalAlignment(JLabel.CENTER);
+        titleLabel.setFont(new Font("Arial",Font.PLAIN,40));
+        title.add(titleLabel);
 
-        JRadioButton coinAndDie = new JRadioButton("Coin & Dice");
-        coinAndDie.setHorizontalAlignment(JRadioButton.CENTER);
-        gamemode.add(coinAndDie);
+        String instructText1 = "First, choose what side you think the 6-sided die will land on.";
+        String instructText2 = "Then, place a bet on your prediction.";
+        String instructText3 = "Finally, roll the die and see if you can win big!";
+        JLabel instructions1 = new JLabel(instructText1);
+        JLabel instructions2 = new JLabel(instructText2);
+        JLabel instructions3 = new JLabel(instructText3);
+        instructions1.setHorizontalAlignment(JLabel.CENTER);
+        instructions2.setHorizontalAlignment(JLabel.CENTER);
+        instructions3.setHorizontalAlignment(JLabel.CENTER);
+        instructions1.setFont(new Font("Arial",Font.PLAIN,12));
+        instructions2.setFont(new Font("Arial",Font.PLAIN,12));
+        instructions3.setFont(new Font("Arial",Font.PLAIN,12));
+        title.add(instructions1);
+        title.add(instructions2);
+        title.add(instructions3);
 
-        return gamemode;
+        playerBal.setText("Your Balance: $" + wallet);
+        playerBal.setHorizontalAlignment(JLabel.CENTER);
+        title.add(playerBal);
+
+        return title;
     }
 
-    private JPanel makeGameUserInput(ActionListener headsAL, ActionListener tailsAL, ActionListener submitBetAL) {
+    private JPanel makeCoinGameUserInput(ActionListener headsAL, ActionListener tailsAL, ActionListener submitCoinBetAL) {
         JPanel betting = new JPanel();
         betting.setLayout(new GridLayout(2,3,5,15));
 
@@ -178,17 +251,45 @@ public class GameView {
 
         JLabel betPrompt = new JLabel("How much money do you want to bet?");
         betPrompt.setHorizontalAlignment(JLabel.CENTER);
-        bettingAmount = new JTextField();
+        coinBettingAmount = new JTextField();
         JButton submitBetButton = new JButton("Submit Bet");
-        submitBetButton.addActionListener(submitBetAL);
+        submitBetButton.addActionListener(submitCoinBetAL);
         betting.add(betPrompt);
-        betting.add(bettingAmount);
+        betting.add(coinBettingAmount);
         betting.add(submitBetButton);
 
         return betting;
     }
 
-    private JPanel makeUserInputText() {
+    private JPanel makeDiceGameUserInput(ActionListener dicePredictionAL, ActionListener submitDiceBetAL) {
+        JPanel betting = new JPanel();
+        betting.setLayout(new GridLayout(2,3,5,15));
+
+        JLabel dicePrompt = new JLabel("Which side will the die land on?");
+        dicePrompt.setHorizontalAlignment(JLabel.CENTER);
+        dicePrediction = new JTextField();
+        JButton submitDicePredictionButton = new JButton("Submit Prediction");
+        submitDicePredictionButton.addActionListener(dicePredictionAL);
+        betting.add(dicePrompt);
+        betting.add(dicePrediction);
+        betting.add(submitDicePredictionButton);
+
+        JLabel betPrompt = new JLabel("How much money do you want to bet?");
+        betPrompt.setHorizontalAlignment(JLabel.CENTER);
+        diceBettingAmount = new JTextField();
+        JButton submitBetButton = new JButton("Submit Bet");
+        submitBetButton.addActionListener(submitDiceBetAL);
+        betting.add(betPrompt);
+        betting.add(diceBettingAmount);
+        betting.add(submitBetButton);
+
+        return betting;
+    }
+
+    private JPanel makeCoinGameStatus() {
+        JPanel text = new JPanel();
+        text.setLayout(new GridLayout(2,1));
+
         JPanel input = new JPanel();
         input.setLayout(new GridLayout(1,2,5,5));
 
@@ -196,18 +297,9 @@ public class GameView {
         headsOrTails.setHorizontalAlignment(JLabel.CENTER);
         input.add(headsOrTails);
 
-        userBet = new JLabel("Bet: -");
-        userBet.setHorizontalAlignment(JLabel.CENTER);
-        input.add(userBet);
-
-        return input;
-    }
-
-    private JPanel makeGameStatusText() {
-        JPanel text = new JPanel();
-        text.setLayout(new GridLayout(2,1));
-
-        JPanel input = makeUserInputText();
+        userCoinBet = new JLabel("Bet: -");
+        userCoinBet.setHorizontalAlignment(JLabel.CENTER);
+        input.add(userCoinBet);
         text.add(input);
 
         flipStatusLabel = new JLabel("Awaiting coin flip...");
@@ -218,12 +310,51 @@ public class GameView {
         return text;
     }
 
-    private JPanel makeGamePrimaryButtons(ActionListener flipAL, ActionListener logoutAL) {
+    private JPanel makeDiceGameStatus() {
+        JPanel text = new JPanel();
+        text.setLayout(new GridLayout(2,1));
+
+        JPanel input = new JPanel();
+        input.setLayout(new GridLayout(1,2,5,5));
+
+        diceResult = new JLabel("Predicted Result: -");
+        diceResult.setHorizontalAlignment(JLabel.CENTER);
+        input.add(diceResult);
+
+        userDiceBet = new JLabel("Bet: -");
+        userDiceBet.setHorizontalAlignment(JLabel.CENTER);
+        input.add(userDiceBet);
+        text.add(input);
+
+        rollStatusLabel = new JLabel("Awaiting die roll...");
+        rollStatusLabel.setHorizontalAlignment(JLabel.CENTER);
+        rollStatusLabel.setFont(new Font("Arial",Font.PLAIN,20));
+        text.add(rollStatusLabel);
+
+        return text;
+    }
+
+    private JPanel makeCoinGameButtons(ActionListener flipCoinAL, ActionListener logoutAL) {
         JPanel buttons = new JPanel();
         buttons.setLayout(new GridLayout(2,1,10,10));
 
         JButton flipButton = new JButton("Flip Coin!");
-        flipButton.addActionListener(flipAL);
+        flipButton.addActionListener(flipCoinAL);
+        buttons.add(flipButton);
+
+        JButton logoutButton = new JButton("Logout");
+        logoutButton.addActionListener(logoutAL);
+        buttons.add(logoutButton);
+
+        return buttons;
+    }
+
+    private JPanel makeDiceGameButtons(ActionListener rollDieAL, ActionListener logoutAL) {
+        JPanel buttons = new JPanel();
+        buttons.setLayout(new GridLayout(2,1,10,10));
+
+        JButton flipButton = new JButton("Roll Die!");
+        flipButton.addActionListener(rollDieAL);
         buttons.add(flipButton);
 
         JButton logoutButton = new JButton("Logout");

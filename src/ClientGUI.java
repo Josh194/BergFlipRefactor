@@ -17,6 +17,7 @@ public class ClientGUI {
     private Boolean validBet = false;
     private String username;
     private double balance;
+
     //Login GUI ActionListeners
     private final loginActionListener loginAL;
     private final registerActionListener registerAL;
@@ -28,11 +29,14 @@ public class ClientGUI {
     private final cancelActionListener cancelAL;
 
     //Game GUI ActionListeners
-    private final flipActionListener flipAL;
+    private final coinFlipActionListener flipCoinAL;
+    private final rollDieActionListener rollDieAL;
     private final logoutActionListener logoutAL;
     private final headsActionListener headsAL;
     private final tailsActionListener tailsAL;
-    private final submitBetActionListener submitBetAL;
+    private final submitDicePredictionActionListener dicePredictionAL;
+    private final submitCoinBetActionListener submitCoinBetAL;
+    private final submitDiceBetActionListener submitDiceBetAL;
 
     //Leaderboard GUI ActionListeners
     private final refreshActionListener refreshAL;
@@ -59,11 +63,14 @@ public class ClientGUI {
         cancelAL = new cancelActionListener();
 
         //Game GUI ActionListeners
-        flipAL = new flipActionListener();
+        flipCoinAL = new coinFlipActionListener();
+        rollDieAL = new rollDieActionListener();
         logoutAL = new logoutActionListener();
         headsAL = new headsActionListener();
         tailsAL = new tailsActionListener();
-        submitBetAL = new submitBetActionListener();
+        dicePredictionAL = new submitDicePredictionActionListener();
+        submitCoinBetAL = new submitCoinBetActionListener();
+        submitDiceBetAL = new submitDiceBetActionListener();
 
         //Leaderboard GUI ActionListeners
         refreshAL = new refreshActionListener();
@@ -90,7 +97,7 @@ public class ClientGUI {
                 if (reader.readLine().equals("valid user")) {
                     loginView.closeLogin();
                     loadUserBalance(username);
-                    gameView.openGame(flipAL,logoutAL,headsAL,tailsAL,submitBetAL,refreshAL);
+                    gameView.openGame(flipCoinAL,rollDieAL,logoutAL,headsAL,tailsAL,submitCoinBetAL,submitDiceBetAL,refreshAL,dicePredictionAL);
                 } else {
                     //TODO: Add more error checking/different error message.
                     System.out.println("Invalid username or password");
@@ -161,11 +168,11 @@ public class ClientGUI {
         }
     }
 
-    private class flipActionListener implements ActionListener {
+    private class coinFlipActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                String bet = gameView.getBettingAmount().getText();
+                String bet = gameView.getCoinBettingAmount().getText();
                 if (requestServerCoinFlip(gameView.getPredictedUserResult(), bet)) {
                     serverMsg = reader.readLine();
                     if (!serverMsg.equals("0.0")) {
@@ -176,6 +183,28 @@ public class ClientGUI {
 
                     System.out.println("Paid out $" + serverMsg);
                     gameView.updateFlipStatus();
+                }
+            } catch (IOException ex) {
+                ex.printStackTrace();
+            }
+        }
+    }
+
+    private class rollDieActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            try {
+                String bet = gameView.getDiceBettingAmount().getText();
+                if () { // ADD CODE TO ROLL DIE HERE --------------------------------------------------------------------------------------------------
+                    serverMsg = reader.readLine();
+                    if (!serverMsg.equals("0.0")) {
+                        updateUserBalance(Double.parseDouble(serverMsg));
+                    } else {
+                        updateUserBalance(-Double.parseDouble(bet));
+                    }
+
+                    System.out.println("Paid out $" + serverMsg);
+                    gameView.updateRollStatus();
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -215,21 +244,51 @@ public class ClientGUI {
         }
     }
 
-    private class submitBetActionListener implements ActionListener {
+    private class submitDicePredictionActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            int bet = Integer.parseInt(gameView.getBettingAmount().getText());
+            int userDicePrediction = Integer.parseInt(gameView.getDicePrediction().getText());
+            gameView.updateDicePredictedResult(userDicePrediction);
+            System.out.println("User's dice prediction: " + userDicePrediction);
+        }
+    }
+
+    private class submitCoinBetActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            int bet = Integer.parseInt(gameView.getCoinBettingAmount().getText());
             //TODO: Error checking if this is not an integer.
             if(bet > 0 & bet <= GameView.getWallet()) {
                 System.out.println("Your bet is $" + bet + "!");
-                gameView.updateBettingAmount();
+                gameView.updateCoinBet();
                 validBet = true;
             } else if(bet < 1) {
                 System.out.println("That is an invalid bet! You have to bet at least $1.");
                 gameView.informInvalidBetNonpositive(closeErrorAL);
                 validBet = false;
             } else {
-                System.out.println("That is an invalid bet! You have to less than your balance.");
+                System.out.println("That is an invalid bet! You have to bet less than your balance.");
+                gameView.informInvalidBetTooLarge(closeErrorAL);
+                validBet = false;
+            }
+        }
+    }
+
+    private class submitDiceBetActionListener implements ActionListener {
+        @Override
+        public void actionPerformed(ActionEvent e) {
+            int bet = Integer.parseInt(gameView.getDiceBettingAmount().getText());
+            //TODO: Error checking if this is not an integer.
+            if(bet > 0 & bet <= GameView.getWallet()) {
+                System.out.println("Your bet is $" + bet + "!");
+                gameView.updateDiceBet();
+                validBet = true;
+            } else if(bet < 1) {
+                System.out.println("That is an invalid bet! You have to bet at least $1.");
+                gameView.informInvalidBetNonpositive(closeErrorAL);
+                validBet = false;
+            } else {
+                System.out.println("That is an invalid bet! You have to bet less than your balance.");
                 gameView.informInvalidBetTooLarge(closeErrorAL);
                 validBet = false;
             }
