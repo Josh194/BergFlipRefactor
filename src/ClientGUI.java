@@ -8,7 +8,6 @@ public class ClientGUI {
     private final GameView gameView;
     private final PasswordView passwordView;
     private final closeErrorActionListener closeErrorAL;
-    private final closeSuccessActionListener closeSuccessAL;
 
     private Socket socket = null;
     private BufferedReader reader = null;
@@ -69,7 +68,6 @@ public class ClientGUI {
         refreshAL = new refreshActionListener();
 
         closeErrorAL = new closeErrorActionListener();
-        closeSuccessAL = new closeSuccessActionListener();
         loginView = new LoginView(loginAL,registerAL,passwordAL,exitAL);
         passwordView = new PasswordView();
         gameView = new GameView();
@@ -122,7 +120,7 @@ public class ClientGUI {
                 //TODO: Need more extensive error checking.
                 loginView.informUsernameAlreadyExists(closeErrorAL);
             } else if (serverMsg.equals("registered user")) {
-                SuccessView.makeSuccessPopup(0,closeSuccessAL);
+                //TODO: Add conformation that user was registered in client GUI
                 System.out.println("Successfully registered user!");
             }
         }
@@ -140,14 +138,7 @@ public class ClientGUI {
     private class closeErrorActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            ErrorView.closeErrorPopup();
-        }
-    }
-
-    private class closeSuccessActionListener implements ActionListener {
-        @Override
-        public void actionPerformed(ActionEvent e) {
-            SuccessView.closeSuccessPopup();
+          ErrorView.closeErrorPopup();
         }
     }
 
