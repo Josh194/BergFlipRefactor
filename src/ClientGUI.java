@@ -13,8 +13,9 @@ public class ClientGUI {
     private BufferedReader reader = null;
     private PrintWriter writer = null;
     private String serverMsg = null;
-
-
+    private Boolean validBet = false;
+    private String username;
+    private double balance;
     //Login GUI ActionListeners
     private final loginActionListener loginAL;
     private final registerActionListener registerAL;
@@ -38,7 +39,7 @@ public class ClientGUI {
     public ClientGUI() {
         try {
             System.out.println("Connecting to 127.0.0.1...");
-            this.socket = new Socket("127.0.0.1", 6000);
+            this.socket = new Socket("127.0.0.1", Server.SERVER_PORT);
             writer = new PrintWriter(socket.getOutputStream());
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             System.out.println("Success!");
@@ -75,23 +76,18 @@ public class ClientGUI {
     private class loginActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            String username = loginView.getEnterUsername().getText();
+            username = loginView.getEnterUsername().getText();
             String password = loginView.getEnterPassword().getText();
             System.out.println("Login button was pressed!");
             System.out.println("Username: " + username + ". Password: " + password + ".");
 
             writer.println("login");
-            sendLoginInfoToServer(username, password);
-
-            //loginView.closeLogin();
-            //GameView.updateWallet(100);
-            //gameView.openGame(flipAL,logoutAL,headsAL,tailsAL,submitBetAL,refreshAL);
+            sendLoginInfoToServer(password);
 
             try {
                 if (reader.readLine().equals("valid user")) {
                     loginView.closeLogin();
-                    GameView.updateWallet(100); // PLACEHOLDER
-                                                           // ADD BALANCE TO USERS IN MODEL DATABASE
+                    loadUserBalance(username);
                     gameView.openGame(flipAL,logoutAL,headsAL,tailsAL,submitBetAL,refreshAL);
                 } else {
                     //TODO: Add more error checking/different error message.
@@ -108,12 +104,12 @@ public class ClientGUI {
     private class registerActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            String username = loginView.getEnterUsername().getText();
+            username = loginView.getEnterUsername().getText();
             String password = loginView.getEnterPassword().getText();
             System.out.println("Register button was pressed!");
 
             writer.println("register");
-            sendLoginInfoToServer(username, password);
+            sendLoginInfoToServer(password);
             try {
                 serverMsg = reader.readLine();
             } catch (IOException ex) {
@@ -159,16 +155,21 @@ public class ClientGUI {
     private class flipActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            writer.println("flip");
-            requestServerCoinFlip(gameView.getPredictedUserResult(), gameView.getBettingAmount().getText());
             try {
-                serverMsg = reader.readLine();
+                if (requestServerCoinFlip(gameView.getPredictedUserResult(), gameView.getBettingAmount().getText())) {
+                    serverMsg = reader.readLine();
+                    if (!serverMsg.equals("0")) {
+                        updateUserBalance(serverMsg);
+                    } else {
 
+                    }
+
+                    System.out.println("Paid out $" + serverMsg);
+                    gameView.updateFlipStatus();
+                }
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-
-            gameView.updateFlipStatus();
         }
     }
 
@@ -208,15 +209,19 @@ public class ClientGUI {
         @Override
         public void actionPerformed(ActionEvent e) {
             int bet = Integer.parseInt(gameView.getBettingAmount().getText());
+            //TODO: Error checking if this is not an integer.
             if(bet > 0 & bet <= GameView.getWallet()) {
                 System.out.println("Your bet is $" + bet + "!");
                 gameView.updateBettingAmount();
+                validBet = true;
             } else if(bet < 1) {
                 System.out.println("That is an invalid bet! You have to bet at least $1.");
                 gameView.informInvalidBetNonpositive(closeAL);
+                validBet = false;
             } else {
                 System.out.println("That is an invalid bet! You have to less than your balance.");
                 gameView.informInvalidBetTooLarge(closeAL);
+                validBet = false;
             }
         }
     }
@@ -256,13 +261,21 @@ public class ClientGUI {
         }
     }
 
-    private void requestServerCoinFlip (String predictedResult, String Bet) {
-        writer.println(predictedResult);
-        writer.println(Bet);
-        writer.flush();
+    private boolean requestServerCoinFlip (String predictedResult, String Bet) {
+        if (predictedResult == null || !validBet) {
+            //TODO: Add error to inform user they need to select a betting amount or guess for heads/tails
+            System.out.println("Invalid bet");
+            return false;
+        } else {
+            writer.println("flip");
+            writer.println(predictedResult);
+            writer.println(Bet);
+            writer.flush();
+            return true;
+        }
     }
 
-    private void sendLoginInfoToServer (String username, String password) {
+    private void sendLoginInfoToServer (String password) {
         writer.println(username);
         writer.println(password);
         writer.flush();
@@ -273,5 +286,29 @@ public class ClientGUI {
         writer.println(oldPassword);
         writer.println(newPassword);
         writer.flush();
+    }
+
+    private void loadUserBalance (String username) {
+        writer.println("balance");
+        writer.println(username);
+        writer.flush();
+
+        try {
+            balance = Double.parseDouble(reader.readLine());
+            gameView.updateWallet(balance);
+        } catch (IOException ex) {
+            ex.printStackTrace();
+        }
+    }
+
+    private void updateUserBalance (String newBalance) {
+        writer.println("update");
+        writer.println(username);
+        writer.println(newBalance);
+        writer.flush();
+
+        balance += Double.parseDouble(newBalance);
+        System.out.println("Balance from updateUserBalance : " + balance);
+        gameView.updateWallet(balance);
     }
 }

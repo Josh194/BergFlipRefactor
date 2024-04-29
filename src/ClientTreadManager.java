@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
+import java.io.Writer;
 import java.net.Socket;
 import java.util.Objects;
 import java.util.Random;
@@ -26,24 +27,57 @@ public class ClientTreadManager extends Thread {
 
         try {
             while ((msg = reader.readLine()) != null) {
+                System.out.println("Server Message Received : " + msg);
                 switch (msg) {
                     case "exit":
                         this.socket.close();
                         break;
-                    case "login":
-                        loginUser (reader.readLine(), reader.readLine());
+                    case "login": {
+                        String line = reader.readLine();
+                        String line2 = reader.readLine();
+                        System.out.println("Lines : " + line + " " + line2 + " [Line End]");
+                        loginUser(line, line2);
+                    }
                         break;
-                    case "register":
-                        registerUser (reader.readLine(), reader.readLine());
+                    case "register": {
+                        String line = reader.readLine();
+                        String line2 = reader.readLine();
+                        System.out.println("Lines : " + line + " " + line2 + " [Line End]");
+                        registerUser(line, line2);
+                    }
                         break;
-                    case "changePass":
-                        changeUserPassword(reader.readLine(), reader.readLine(), reader.readLine());
+                    case "changePass": {
+                        String line = reader.readLine();
+                        String line2 = reader.readLine();
+                        String line3 = reader.readLine();
+                        System.out.println("Lines : " + line + " " + line2 + " " + line3 + " [Line End]");
+                        changeUserPassword(line, line2, line3);
+                    }
                         break;
-                    case "flip":
-                        flipCoin(reader.readLine(), reader.readLine());
+                    case "flip": {
+                        String line = reader.readLine();
+                        String line2 = reader.readLine();
+                        System.out.println("Lines : " + line + " " + line2 + " [Line End]");
+                        flipCoin(line, line2);
+                    }
+                        break;
+                    case "balance": {
+                        String line = reader.readLine();
+                        System.out.println("Lines : " + line + " [Line End]");
+                        writer.println(model.getBalance(line));
+                        writer.flush();
+                    }
+                        break;
+                    case "update": {
+                        String line = reader.readLine();
+                        String line2 = reader.readLine();
+                        System.out.println("Lines : " + line + " " +  line2 + " [Line End]");
+                        model.updateUserBalance(line, line2);
+                    }
                         break;
                     default:
-                        System.out.println("Received: " + msg);
+                        // TODO: reimplement when other prints removed
+                        // System.out.println("Received: " + msg);
                         break;
                 }
             }
@@ -54,14 +88,19 @@ public class ClientTreadManager extends Thread {
     }
 
     private void flipCoin(String predictedResult, String bet) {
-        double payout;
+        double payout = 0.0;
 
-        if ((Objects.equals(predictedResult, "HEADS")) && rand.nextBoolean()) {
-            payout = (Integer.parseInt(bet) * 1.5);
+        if (rand.nextBoolean()) {
+            if ((Objects.equals(predictedResult, "HEADS"))) {
+                payout = (Integer.parseInt(bet) * 0.5);
+            }
         } else {
-            payout = 0;
+            if ((Objects.equals(predictedResult, "TAILS"))) {
+                payout = (Integer.parseInt(bet) * 0.5);
+            }
         }
 
+        System.out.println("Payout : " + payout);
         writer.println(payout);
         writer.flush();
     }
