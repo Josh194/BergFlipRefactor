@@ -7,12 +7,6 @@ public class Model {
     private final static int initialBalance = 100;
 
     public Model() {
-//        try {
-//            this.conn = DriverManager.getConnection("jdbc:sqlite:gameData.db");
-//        } catch (SQLException e) {
-//            e.printStackTrace();
-//        }
-
         createInitialLeaderboard();
         createInitialUserTable();
     }
@@ -25,8 +19,6 @@ public class Model {
                     "password STRING," +
                     "balance INTEGER);";
             conn.createStatement().executeUpdate(cmd);
-
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("Failed to create table for user data!");
@@ -54,7 +46,6 @@ public class Model {
             stmt.executeUpdate();
 
             stmt.close();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -68,7 +59,6 @@ public class Model {
             stmt.executeUpdate();
 
             stmt.close();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -82,7 +72,6 @@ public class Model {
             stmt.executeUpdate();
 
             stmt.close();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -96,7 +85,6 @@ public class Model {
             stmt.executeUpdate();
 
             stmt.close();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -132,7 +120,6 @@ public class Model {
 
             resultSet.close();
             stmt.close();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -182,7 +169,6 @@ public class Model {
             stmt.executeUpdate();
 
             stmt.close();
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }

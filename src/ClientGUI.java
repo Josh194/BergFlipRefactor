@@ -165,12 +165,13 @@ public class ClientGUI {
         @Override
         public void actionPerformed(ActionEvent e) {
             try {
-                if (requestServerCoinFlip(gameView.getPredictedUserResult(), gameView.getBettingAmount().getText())) {
+                String bet = gameView.getBettingAmount().getText();
+                if (requestServerCoinFlip(gameView.getPredictedUserResult(), bet)) {
                     serverMsg = reader.readLine();
-                    if (!serverMsg.equals("0")) {
-                        updateUserBalance(serverMsg);
+                    if (!serverMsg.equals("0.0")) {
+                        updateUserBalance(Double.parseDouble(serverMsg));
                     } else {
-
+                        updateUserBalance(-Double.parseDouble(bet));
                     }
 
                     System.out.println("Paid out $" + serverMsg);
@@ -311,13 +312,13 @@ public class ClientGUI {
         }
     }
 
-    private void updateUserBalance (String newBalance) {
+    private void updateUserBalance (double newBalance) {
         writer.println("update");
         writer.println(username);
         writer.println(newBalance);
         writer.flush();
 
-        balance += Double.parseDouble(newBalance);
+        balance += newBalance;
         System.out.println("Balance from updateUserBalance : " + balance);
         gameView.updateWallet(balance);
     }

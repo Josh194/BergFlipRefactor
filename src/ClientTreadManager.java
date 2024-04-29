@@ -87,7 +87,7 @@ public class ClientTreadManager extends Thread {
         }
     }
 
-    private void flipCoin(String predictedResult, String bet) {
+    private void flipCoin (String predictedResult, String bet) {
         double payout = 0.0;
 
         if (rand.nextBoolean()) {

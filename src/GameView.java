@@ -9,7 +9,6 @@ public class GameView {
     private JLabel userBet;
     private JLabel flipStatusLabel;
     private final JLabel playerBal = new JLabel();
-
     private boolean flipStatus = false;
 
     private String predictedUserResult;
