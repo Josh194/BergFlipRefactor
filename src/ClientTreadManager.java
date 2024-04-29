@@ -22,6 +22,7 @@ public class ClientTreadManager extends Thread {
 
     public void run() {
         String msg;
+        model.getLeaderboardScores();
 
         System.out.println("Waiting for client to send data...");
 
