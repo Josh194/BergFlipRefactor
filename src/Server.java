@@ -1,12 +1,16 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
+import java.sql.SQLException;
 
 public class Server {
 
+    static final int SERVER_PORT = 7000;
+
     public static void main(String[] args) {
         try {
-            ServerSocket coinFlipServer = new ServerSocket(6000);
+            ServerSocket coinFlipServer = new ServerSocket(SERVER_PORT);
+            Model model = new Model();
 
             while (true) {
                 try {
@@ -15,7 +19,6 @@ public class Server {
 
                     BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
                     PrintWriter writer = new PrintWriter(socket.getOutputStream());
-                    Model model = new Model();
 
                     System.out.println("Creating thread for client...");
                     Thread clientThread = new ClientTreadManager(reader, writer, socket, model);
@@ -24,9 +27,9 @@ public class Server {
                     e.printStackTrace();
                 }
             }
+            //model.conn.close();
         } catch (IOException e) {
             e.printStackTrace();
         }
-
     }
 }

@@ -8,11 +8,12 @@ public class GameView {
     private JLabel headsOrTails;
     private JLabel userBet;
     private JLabel flipStatusLabel;
+    private final JLabel playerBal = new JLabel();
 
     private boolean flipStatus = false;
 
     private String predictedUserResult;
-    private static int wallet = 0;
+    private static double wallet = 0;
     private JFrame gameFrame;
     private DefaultListModel<String> listModel;
 
@@ -35,7 +36,7 @@ public class GameView {
         return bettingAmount;
     }
 
-    public static int getWallet() {
+    public static double getWallet() {
         return wallet;
     }
 
@@ -54,8 +55,9 @@ public class GameView {
         userBet.setText("Bet: $" + bet);
     }
 
-    public static void updateWallet(int newBalance) {
+    public void updateWallet(double newBalance) {
         wallet = newBalance;
+        playerBal.setText("Your Balance: $" + wallet);
     }
 
     public void updateFlipStatus() {
@@ -139,7 +141,7 @@ public class GameView {
         title.add(instructions2);
         title.add(instructions3);
 
-        JLabel playerBal = new JLabel("Your Balance: $" + wallet);
+        playerBal.setText("Your Balance: $" + wallet);;
         playerBal.setHorizontalAlignment(JLabel.CENTER);
         title.add(playerBal);
 

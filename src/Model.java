@@ -1,98 +1,138 @@
-import java.io.IOException;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class Model {
-    Connection conn;
+    //Connection conn;
+    private final static int initialBalance = 100;
+
     public Model() {
-        try {
-            this.conn = DriverManager.getConnection("jdbc:sqlite:gameData.db");
-        } catch (SQLException e) {
-            e.printStackTrace();
-        }
+//        try {
+//            this.conn = DriverManager.getConnection("jdbc:sqlite:gameData.db");
+//        } catch (SQLException e) {
+//            e.printStackTrace();
+//        }
+
         createInitialLeaderboard();
         createInitialUserTable();
     }
 
-    private void createInitialUserTable() {
-        try {
+    private synchronized void createInitialUserTable() {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
             String cmd = "CREATE TABLE IF NOT EXISTS userData (" +
                     "userID INTEGER PRIMARY KEY," +
                     "username STRING," +
-                    "password STRING +" +
+                    "password STRING," +
                     "balance INTEGER);";
             conn.createStatement().executeUpdate(cmd);
+
+            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
             System.out.println("Failed to create table for user data!");
         }
     }
-    private void createInitialLeaderboard() {
-        try {
+    private synchronized void createInitialLeaderboard() {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
             String cmd = "CREATE TABLE IF NOT EXISTS leaderboard (" +
                     "userRank INTEGER PRIMARY KEY," +
                     "score INTEGER," +
                     "username STRING);";
             conn.createStatement().executeUpdate(cmd);
+
+            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void addUser(String username, String password) {
-        try {
-            PreparedStatement stmt = conn.prepareStatement("INSERT INTO userData (username, password) VALUES (?, ?);");
+    public synchronized void addUser(String username, String password) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
+            PreparedStatement stmt = conn.prepareStatement("INSERT INTO userData (username, password, balance) VALUES (?, ?, " + initialBalance + ");");
             stmt.setString(1, username);
             stmt.setString(2, password);
             stmt.executeUpdate();
+
+            stmt.close();
+            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    public void updatePassword (String username, String newPassword) {
-        try {
-            PreparedStatement stmt = conn.prepareStatement("UPDATE userData SET password = ? WHERE username = ?");
+    public synchronized void updatePassword (String username, String newPassword) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
+            PreparedStatement stmt = conn.prepareStatement("UPDATE userData SET password = ? WHERE username = ?;");
             stmt.setString(1, newPassword);
             stmt.setString(2, username);
             stmt.executeUpdate();
+
+            stmt.close();
+            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    void addLeaderboardScore (String username, int score) {
-        try {
+    public synchronized void addLeaderboardScore (String username, int score) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
             PreparedStatement stmt = conn.prepareStatement("INSERT INTO leaderboard (username, score) VALUES (?, ?);");
             stmt.setString(1, username);
             stmt.setInt(2, score);
             stmt.executeUpdate();
+
+            stmt.close();
+            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    void updateLeaderboardScore (String username, int score) {
-        try {
+    public synchronized void updateLeaderboardScore (String username, int score) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
             PreparedStatement stmt = conn.prepareStatement("UPDATE leaderboard SET score = ? WHERE username = ?;");
             stmt.setInt(1, score);
             stmt.setString(2, username);
             stmt.executeUpdate();
+
+            stmt.close();
+            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
 
-    private ArrayList<String> getUsers() {
-        ArrayList<String> users = new ArrayList<>();
-        try {
-            PreparedStatement stmt = conn.prepareStatement("SELECT username FROM userData");
-            ResultSet rs = stmt.executeQuery();
+    public synchronized int getBalance(String username) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
+            PreparedStatement stmt = conn.prepareStatement("SELECT balance FROM userData WHERE username = ?;");
+            stmt.setString(1, username);
 
-            while (rs.next()) {
-                users.add(rs.getString(1));
+            int balance = stmt.executeQuery().getInt(1);
+
+            stmt.close();
+            conn.close();
+
+            return balance;
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
+
+        return -1;
+    }
+
+    private synchronized ArrayList<String> getUsers() {
+        ArrayList<String> users = new ArrayList<>();
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
+            PreparedStatement stmt = conn.prepareStatement("SELECT username FROM userData");
+            ResultSet resultSet = stmt.executeQuery();
+
+            while (resultSet.next()) {
+                users.add(resultSet.getString(1));
             }
+
+            resultSet.close();
+            stmt.close();
+            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
@@ -110,16 +150,22 @@ public class Model {
         return false;
     }
 
-    public boolean checkLoginCredentials (String username, String password) {
-        try {
+    public synchronized boolean checkLoginCredentials (String username, String password) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
             PreparedStatement stmt = conn.prepareStatement("SELECT username, password FROM userData WHERE username = ? AND password = ?");
             stmt.setString(1, username);
             stmt.setString(2, password);
             ResultSet resultSet = stmt.executeQuery();
 
+            boolean condition = resultSet.next() && (resultSet.getString(1).equals(username)) && (resultSet.getString(2).equals(password));
+
+            resultSet.close();
+            stmt.close();
+            conn.close();
+
             if (username.isEmpty() || password.isEmpty()) {
                 return false;
-            } else if (resultSet.next() && (resultSet.getString(1).equals(username)) && (resultSet.getString(2).equals(password))) {
+            } else if (condition) {
                return true;
             }
         } catch (SQLException e) {
@@ -128,8 +174,17 @@ public class Model {
         return false;
     }
 
-    public int getWalletBalance() {
-        String tempBal = "100";
-        return Integer.parseInt(tempBal);
+    public synchronized void updateUserBalance (String username, String addedBalance) {
+        try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
+            PreparedStatement stmt = conn.prepareStatement("UPDATE userData SET balance = balance + ? WHERE username = ?");
+            stmt.setString(1, addedBalance);
+            stmt.setString(2, username);
+            stmt.executeUpdate();
+
+            stmt.close();
+            conn.close();
+        } catch (SQLException e) {
+            e.printStackTrace();
+        }
     }
 }
