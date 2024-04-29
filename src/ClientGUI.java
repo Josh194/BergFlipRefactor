@@ -122,7 +122,7 @@ public class ClientGUI {
                 //TODO: Need more extensive error checking.
                 loginView.informUsernameAlreadyExists(closeErrorAL);
             } else if (serverMsg.equals("registered user")) {
-                //TODO: Add conformation that user was registered in client GUI
+                SuccessView.makeSuccessPopup(0,closeSuccessAL);
                 System.out.println("Successfully registered user!");
             }
         }
@@ -257,6 +257,7 @@ public class ClientGUI {
             } else {
                 passwordView.closeChangePassword();
                 loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
+                SuccessView.makeSuccessPopup(1,closeSuccessAL);
             }
         }
     }
