@@ -1,3 +1,4 @@
+import javax.swing.plaf.nimbus.State;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Objects;
@@ -5,6 +6,7 @@ import java.util.Objects;
 public class Model {
     //Connection conn;
     private final static int initialBalance = 100;
+    private final static int leaderboardEntries = 3;
 
     public Model() {
         createInitialLeaderboard();
@@ -77,17 +79,21 @@ public class Model {
         }
     }
 
-    public synchronized void updateLeaderboardScore (String username, int score) {
+    public synchronized double[] getLeaderboardScores() {
+        double[] retArr = new double[leaderboardEntries];
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
-            PreparedStatement stmt = conn.prepareStatement("UPDATE leaderboard SET score = ? WHERE username = ?;");
-            stmt.setInt(1, score);
-            stmt.setString(2, username);
-            stmt.executeUpdate();
-
-            stmt.close();
+            Statement stmt = conn.createStatement();
+            ResultSet resultSet = stmt.executeQuery("SELECT balance, username from userData ORDER BY balance DESC LIMIT " + leaderboardEntries);
+            for (int i = 0; i < leaderboardEntries; i++) {
+                resultSet.next();
+                retArr[i] = resultSet.getDouble(1);
+                System.out.println(resultSet.getString(2));
+            }
+            resultSet.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
+        return retArr;
     }
 
     public synchronized int getBalance(String username) {
@@ -144,8 +150,7 @@ public class Model {
             stmt.setString(2, password);
             ResultSet resultSet = stmt.executeQuery();
 
-            boolean condition = resultSet.next() && (resultSet.getString(1).equals(username)) && (resultSet.getString(2).equals(password));
-
+            boolean condition = (resultSet.next() && (resultSet.getString(1).equals(username)) && (resultSet.getString(2).equals(password)));
             resultSet.close();
             stmt.close();
             conn.close();
