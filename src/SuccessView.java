@@ -40,7 +40,6 @@ public class SuccessView {
         successFrame.setSize(400,150);
         successFrame.setVisible(true);
     }
-
     public static void closeSuccessPopup() {
         System.out.println("Closing Success Message Popup...");
         successFrame.setVisible(false);

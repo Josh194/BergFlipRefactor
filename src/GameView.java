@@ -1,14 +1,13 @@
 import javax.swing.*;
-import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
 public class GameView {
-    private JTabbedPane tabs;
+    private JFrame gameFrame;
+    private JTable leaderboardTable;
     private JTextField coinBettingAmount;
     private JTextField diceBettingAmount;
     private JTextField dicePrediction;
-    private JTable leaderboardTable;
 
     private JLabel headsOrTails;
     private JLabel userCoinBet;
@@ -19,31 +18,23 @@ public class GameView {
     private final JLabel playerBal = new JLabel();
 
     private String predictedUserResult;
-    private int predictedDiceResult = 0;
-    private String gamemode = "COIN";
     private static double wallet = 0;
-    private JFrame gameFrame;
 
     public String getPredictedUserResult() {
         return predictedUserResult;
     }
-
     public JTextField getDicePrediction() {
         return dicePrediction;
     }
-
     public JTextField getCoinBettingAmount() {
         return coinBettingAmount;
     }
-
     public JTextField getDiceBettingAmount() {
         return diceBettingAmount;
     }
-
     public static double getWallet() {
         return wallet;
     }
-
     public void updatePredictedUserResult(boolean heads) {
         if (heads) {
             predictedUserResult = "HEADS";
@@ -53,58 +44,64 @@ public class GameView {
             headsOrTails.setText("Predicted Result: TAILS");
         }
     }
-
     public void updateDicePredictedResult(int side) {
         switch (side) {
             case 1: diceResult.setText("Predicted Result: 1");
-                    predictedDiceResult = 1;
                     break;
             case 2: diceResult.setText("Predicted Result: 2");
-                    predictedDiceResult = 2;
                     break;
             case 3: diceResult.setText("Predicted Result: 3");
-                    predictedDiceResult = 3;
                     break;
             case 4: diceResult.setText("Predicted Result: 4");
-                    predictedDiceResult = 4;
                     break;
             case 5: diceResult.setText("Predicted Result: 5");
-                    predictedDiceResult = 5;
                     break;
             case 6: diceResult.setText("Predicted Result: 6");
-                    predictedDiceResult = 6;
                     break;
         }
     }
-
     public void updateCoinBet() {
         double bet = Double.parseDouble(coinBettingAmount.getText());
         userCoinBet.setText("Bet: $" + bet);
     }
-
     public void updateDiceBet() {
         double bet = Double.parseDouble(diceBettingAmount.getText());
         userDiceBet.setText("Bet: $" + bet);
     }
-
     public void updateWallet(double newBalance) {
         wallet = newBalance;
         playerBal.setText("Your Balance: $" + wallet);
     }
-
     public void updateFlipStatus() {
         flipStatusLabel.setText("The coin was flipped!");
     }
-
     public void updateRollStatus() {
         rollStatusLabel.setText("The die was rolled!");
     }
-
+    public void informInvalidBetNonpositive(ActionListener closeAL) {
+        ErrorView.makeErrorPopup(5,closeAL);
+    }
+    public void informInvalidBetTooLarge(ActionListener closeAL) {
+        ErrorView.makeErrorPopup(6,closeAL);
+    }
+    public void informInvalidBetNotNumber(ActionListener closeAL) {
+        ErrorView.makeErrorPopup(7,closeAL);
+    }
+    public void informNoPrediction(ActionListener closeAL) {
+        ErrorView.makeErrorPopup(8,closeAL);
+    }
+    public void fillLeaderboard (String[][] leaderboardData) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 2; j++) {
+                leaderboardTable.setValueAt(leaderboardData[i][j], i, j);
+            }
+        }
+    }
     public void openGame(ActionListener coinFlipAL, ActionListener rollDieAL, ActionListener logoutAL, ActionListener headsAL, ActionListener tailsAL,
                          ActionListener submitCoinBetAL, ActionListener submitDiceBetAL,ActionListener refreshAL, ActionListener dicePredictionAL) {
         System.out.println("Initializing Game GUI...");
         gameFrame = new JFrame("Gambling Game");
-        tabs = new JTabbedPane();
+        JTabbedPane tabs = new JTabbedPane();
 
         tabs.add("COIN GAME", makeCoinGameTab(coinFlipAL,logoutAL,headsAL,tailsAL,submitCoinBetAL));
         tabs.add("DICE GAME", makeDiceGameTab(dicePredictionAL,submitDiceBetAL,rollDieAL,logoutAL));
@@ -115,22 +112,10 @@ public class GameView {
         gameFrame.setVisible(true);
         System.out.println("Game GUI Initialized Successfully!");
     }
-
     public void closeGame() {
         System.out.println("Closing Game GUI...");
         gameFrame.setVisible(false);
     }
-
-    public void informInvalidBetNonpositive(ActionListener closeAL) {
-        coinBettingAmount.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(5,closeAL);
-    }
-
-    public void informInvalidBetTooLarge(ActionListener closeAL) {
-        coinBettingAmount.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(6,closeAL);
-    }
-
     private JPanel makeCoinGameTab(ActionListener flipCoinAL, ActionListener logoutAL, ActionListener headsAL,
                                    ActionListener tailsAL, ActionListener submitCoinBetAL) {
         JPanel game = new JPanel();
@@ -141,7 +126,6 @@ public class GameView {
         JPanel status = makeCoinGameStatus();
         JPanel buttons = makeCoinGameButtons(flipCoinAL, logoutAL);
 
-        //Compiling panels into Game Panel
         game.add(title);
         game.add(betting);
         game.add(status);
@@ -149,7 +133,6 @@ public class GameView {
 
         return game;
     }
-
     private JPanel makeDiceGameTab(ActionListener dicePredictionAL, ActionListener submitDiceBetAL, ActionListener rollDieAL, ActionListener logoutAL) {
         JPanel game = new JPanel();
         game.setLayout(new GridLayout(4,1,0,5));
@@ -159,7 +142,6 @@ public class GameView {
         JPanel status = makeDiceGameStatus();
         JPanel buttons = makeDiceGameButtons(rollDieAL, logoutAL);
 
-        //Compiling panels into Game Panel
         game.add(title);
         game.add(betting);
         game.add(status);
@@ -167,7 +149,6 @@ public class GameView {
 
         return game;
     }
-
     private JPanel makeCoinGameTitle() {
         JPanel title = new JPanel();
         title.setLayout(new GridLayout(5,1));
@@ -199,7 +180,6 @@ public class GameView {
 
         return title;
     }
-
     private JPanel makeDiceGameTitle() {
         JPanel title = new JPanel();
         title.setLayout(new GridLayout(5,1));
@@ -231,7 +211,6 @@ public class GameView {
 
         return title;
     }
-
     private JPanel makeCoinGameUserInput(ActionListener headsAL, ActionListener tailsAL, ActionListener submitCoinBetAL) {
         JPanel betting = new JPanel();
         betting.setLayout(new GridLayout(2,3,5,15));
@@ -257,7 +236,6 @@ public class GameView {
 
         return betting;
     }
-
     private JPanel makeDiceGameUserInput(ActionListener dicePredictionAL, ActionListener submitDiceBetAL) {
         JPanel betting = new JPanel();
         betting.setLayout(new GridLayout(2,3,5,15));
@@ -282,7 +260,6 @@ public class GameView {
 
         return betting;
     }
-
     private JPanel makeCoinGameStatus() {
         JPanel text = new JPanel();
         text.setLayout(new GridLayout(2,1));
@@ -306,7 +283,6 @@ public class GameView {
 
         return text;
     }
-
     private JPanel makeDiceGameStatus() {
         JPanel text = new JPanel();
         text.setLayout(new GridLayout(2,1));
@@ -330,7 +306,6 @@ public class GameView {
 
         return text;
     }
-
     private JPanel makeCoinGameButtons(ActionListener flipCoinAL, ActionListener logoutAL) {
         JPanel buttons = new JPanel();
         buttons.setLayout(new GridLayout(2,1,10,10));
@@ -345,7 +320,6 @@ public class GameView {
 
         return buttons;
     }
-
     private JPanel makeDiceGameButtons(ActionListener rollDieAL, ActionListener logoutAL) {
         JPanel buttons = new JPanel();
         buttons.setLayout(new GridLayout(2,1,10,10));
@@ -360,8 +334,7 @@ public class GameView {
 
         return buttons;
     }
-
-    public JPanel makeLeaderboardTab(ActionListener refreshAL) {
+    private JPanel makeLeaderboardTab(ActionListener refreshAL) {
         JPanel leaderboard = new JPanel();
         leaderboard.setLayout(new BoxLayout(leaderboard, BoxLayout.Y_AXIS));
 
@@ -376,13 +349,5 @@ public class GameView {
         leaderboard.add(leaderboardTable);
 
         return leaderboard;
-    }
-
-    public void fillLeaderboard (String[][] leaderboardData) {
-        for (int i = 0; i < 3; i++) {
-            for (int j = 0; j < 2; j++) {
-                leaderboardTable.setValueAt(leaderboardData[i][j], i, j);
-            }
-        }
     }
 }

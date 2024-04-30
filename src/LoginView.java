@@ -14,11 +14,9 @@ public class LoginView {
     public JTextField getEnterUsername() {
         return enterUsername;
     }
-
     public JTextField getEnterPassword() {
         return enterPassword;
     }
-
     public void openLogin(ActionListener loginAL, ActionListener registerAL, ActionListener passwordAL, ActionListener exitAL) {
         System.out.println("Initializing Login GUI...");
         loginFrame = new JFrame("Login or Register");
@@ -54,35 +52,15 @@ public class LoginView {
         loginFrame.setVisible(true);
         System.out.println("Login GUI Initialized!");
     }
-
     public void closeLogin() {
         System.out.println("Closing Login GUI...");
         loginFrame.setVisible(false);
     }
-
-    public void informInvalidUsername(ActionListener closeAL) {
-        enterUsername.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(1,closeAL);
-    }
-
-    public void informInvalidPassword(ActionListener closeAL) {
-        enterPassword.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(2,closeAL);
-    }
-
     public void informUsernameAlreadyExists(ActionListener closeAL) {
         enterUsername.setBorder(BorderFactory.createLineBorder(Color.red));
         ErrorView.makeErrorPopup(0,closeAL);
     }
-
-    public void informUsernameDoesNotExist(ActionListener closeAL) {
-        enterUsername.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(3,closeAL);
+    public void informGeneralLoginError(ActionListener closeAL) {
+        ErrorView.makeErrorPopup(10,closeAL);
     }
-
-    public void informIncorrectPassword(ActionListener closeAL) {
-        enterPassword.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(4,closeAL);
-    }
-
 }

@@ -42,6 +42,9 @@ public class ErrorView {
             case 9: errorMessage1 = new JLabel("No bet was submitted.");
                     errorMessage2 = new JLabel("Please submit a bet before playing the game.");
                     break;
+            case 10: errorMessage1 = new JLabel("Username or Password incorrect or invalid.");
+                     errorMessage2 = new JLabel("Make sure credentials are typed correctly.");
+                     break;
         }
 
         errorMessage1.setHorizontalAlignment(JLabel.CENTER);
@@ -57,10 +60,8 @@ public class ErrorView {
         errorFrame.setSize(400,150);
         errorFrame.setVisible(true);
     }
-
     public static void closeErrorPopup() {
         System.out.println("Closing Error Message Popup...");
         errorFrame.setVisible(false);
     }
-
 }

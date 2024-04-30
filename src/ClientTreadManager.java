@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
-import java.io.Writer;
 import java.net.Socket;
 import java.util.Objects;
 import java.util.Random;
@@ -68,7 +67,6 @@ public class ClientTreadManager extends Thread {
             e.printStackTrace();
         }
     }
-
     private void flipCoin (String predictedResult, String bet) {
         double payout = 0.0;
 
@@ -86,7 +84,6 @@ public class ClientTreadManager extends Thread {
         writer.println(payout);
         writer.flush();
     }
-
     private void rollDie (String predictedResult, String bet) {
         double payout = 0.0;
         int roll = 1 + rand.nextInt(6);
@@ -99,7 +96,6 @@ public class ClientTreadManager extends Thread {
         writer.println(payout);
         writer.flush();
     }
-
     private void loginUser (String username, String password) {
         if (model.checkLoginCredentials(username, password)) {
             System.out.println("Logged in user for client " + socket.toString());
@@ -109,7 +105,6 @@ public class ClientTreadManager extends Thread {
             sendMessageToClient("invalid user");
         }
     }
-
     private void getLeaderboardScores() {
         String[][] retArr = model.getLeaderboardScores();
         for (int i = 0; i < 3; i++) {
@@ -119,7 +114,6 @@ public class ClientTreadManager extends Thread {
         }
         writer.flush();
     }
-
     private void registerUser (String username, String password) {
      if (model.doesUserExist(username)) {
          System.out.println("Username already taken for client " + socket.toString());
@@ -133,7 +127,6 @@ public class ClientTreadManager extends Thread {
          sendMessageToClient("registered user");
      }
     }
-
     private void changeUserPassword (String username, String oldPassword, String newPassword) {
         if ((model.checkLoginCredentials(username, oldPassword)) && newPassword.length() > 7) {
             model.updatePassword(username, newPassword);
@@ -143,7 +136,6 @@ public class ClientTreadManager extends Thread {
             sendMessageToClient("password error");
         }
     }
-
     private void sendMessageToClient (String msg) {
         writer.println(msg);
         writer.flush();

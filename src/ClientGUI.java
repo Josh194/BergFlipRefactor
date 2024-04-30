@@ -19,53 +19,43 @@ public class ClientGUI {
     private String username;
     private double balance;
 
-    //Login GUI ActionListeners
     private final loginActionListener loginAL;
     private final registerActionListener registerAL;
     private final changePasswordActionListener passwordAL;
     private final exitActionListener exitAL;
 
-    //Change Password GUI ActionListeners
     private final confirmPasswordActionListener confirmPassAL;
     private final cancelActionListener cancelAL;
 
-    //Game GUI ActionListeners
     private final coinFlipActionListener flipCoinAL;
     private final rollDieActionListener rollDieAL;
-    private final logoutActionListener logoutAL;
     private final headsActionListener headsAL;
     private final tailsActionListener tailsAL;
     private final submitDicePredictionActionListener dicePredictionAL;
     private final submitCoinBetActionListener submitCoinBetAL;
     private final submitDiceBetActionListener submitDiceBetAL;
+    private final logoutActionListener logoutAL;
 
-    //Leaderboard GUI ActionListeners
     private final refreshActionListener refreshAL;
 
     public ClientGUI() {
-
-
-        //Login GUI ActionListeners
         loginAL = new loginActionListener();
         registerAL = new registerActionListener();
         passwordAL = new changePasswordActionListener();
         exitAL = new exitActionListener();
 
-        //Change Password GUI ActionListener
         confirmPassAL = new confirmPasswordActionListener();
         cancelAL = new cancelActionListener();
 
-        //Game GUI ActionListeners
         flipCoinAL = new coinFlipActionListener();
         rollDieAL = new rollDieActionListener();
-        logoutAL = new logoutActionListener();
         headsAL = new headsActionListener();
         tailsAL = new tailsActionListener();
         dicePredictionAL = new submitDicePredictionActionListener();
         submitCoinBetAL = new submitCoinBetActionListener();
         submitDiceBetAL = new submitDiceBetActionListener();
+        logoutAL = new logoutActionListener();
 
-        //Leaderboard GUI ActionListeners
         refreshAL = new refreshActionListener();
 
         closeErrorAL = new closeErrorActionListener();
@@ -93,13 +83,11 @@ public class ClientGUI {
             e.printStackTrace();
         }
     }
-
     private class loginActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             username = loginView.getEnterUsername().getText();
             String password = loginView.getEnterPassword().getText();
-            System.out.println("Login button was pressed!");
             System.out.println("Username: " + username + ". Password: " + password + ".");
 
             writer.println("login");
@@ -111,8 +99,7 @@ public class ClientGUI {
                     loadUserBalance(username);
                     gameView.openGame(flipCoinAL,rollDieAL,logoutAL,headsAL,tailsAL,submitCoinBetAL,submitDiceBetAL,refreshAL,dicePredictionAL);
                 } else {
-                    //TODO: Add more error checking/different error message.
-                    System.out.println("Invalid username or password");
+                    loginView.informGeneralLoginError(closeErrorAL);
                 }
             } catch (IOException ex) {
                 ex.printStackTrace();
@@ -120,7 +107,6 @@ public class ClientGUI {
             gameView.fillLeaderboard(leaderboardData);
         }
     }
-
     private class registerActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -135,9 +121,7 @@ public class ClientGUI {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-
             if (serverMsg.equals("username already taken")) {
-                //TODO: Need more extensive error checking.
                 loginView.informUsernameAlreadyExists(closeErrorAL);
             } else if (serverMsg.equals("registered user")) {
                 SuccessView.makeSuccessPopup(0,closeSuccessAL);
@@ -145,42 +129,35 @@ public class ClientGUI {
             }
         }
     }
-
     private class changePasswordActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("Change Password button was pressed!");
             loginView.closeLogin();
             passwordView.openChangePassword(confirmPassAL,cancelAL);
         }
     }
-
     private class closeErrorActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             ErrorView.closeErrorPopup();
         }
     }
-
     private class closeSuccessActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             SuccessView.closeSuccessPopup();
         }
     }
-
     private class exitActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("Exit button was pressed!");
+            System.out.println("Client Closing Program...");
             writer.println("exit");
             writer.flush();
             loginView.closeLogin();
-            System.out.println("Closing Program...");
             System.exit(0);
         }
     }
-
     private class coinFlipActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -193,7 +170,6 @@ public class ClientGUI {
                     } else {
                         updateUserBalance(-Double.parseDouble(bet));
                     }
-
                     System.out.println("Paid out $" + serverMsg);
                     gameView.updateFlipStatus();
                 }
@@ -202,7 +178,6 @@ public class ClientGUI {
             }
         }
     }
-
     private class rollDieActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -215,7 +190,6 @@ public class ClientGUI {
                     } else {
                         updateUserBalance(-Double.parseDouble(bet));
                     }
-
                     System.out.println("Paid out $" + serverMsg);
                     gameView.updateRollStatus();
                 }
@@ -224,16 +198,13 @@ public class ClientGUI {
             }
         }
     }
-
     private class logoutActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("Logout button was pressed!");
             gameView.closeGame();
             loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
         }
     }
-
     private class refreshActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -250,77 +221,66 @@ public class ClientGUI {
                 }
             }
             gameView.fillLeaderboard(leaderboardData);
-            System.out.println("Refresh button was pressed!");
+            System.out.println("Leaderboard refreshed.");
         }
     }
-
     private class headsActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("Heads button was pressed!");
             gameView.updatePredictedUserResult(true);
         }
     }
-
     private class tailsActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("Tails button was pressed!");
             gameView.updatePredictedUserResult(false);
         }
     }
-
     private class submitDicePredictionActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             int userDicePrediction = Integer.parseInt(gameView.getDicePrediction().getText());
             gameView.updateDicePredictedResult(userDicePrediction);
-            System.out.println("User's dice prediction: " + userDicePrediction);
         }
     }
-
     private class submitCoinBetActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             double bet = Double.parseDouble(gameView.getCoinBettingAmount().getText());
-            //TODO: Error checking if this is not an integer.
             if(bet > 0 & bet <= GameView.getWallet()) {
-                System.out.println("Your bet is $" + bet + "!");
                 gameView.updateCoinBet();
                 validBet = true;
             } else if (bet < 0) {
-                System.out.println("That is an invalid bet! You have to bet at least $1.");
                 gameView.informInvalidBetNonpositive(closeErrorAL);
                 validBet = false;
-            } else {
-                System.out.println("That is an invalid bet! You have to bet less than your balance.");
+            } else if(bet > balance) {
                 gameView.informInvalidBetTooLarge(closeErrorAL);
+                validBet = false;
+            } else {
+                gameView.informInvalidBetNotNumber(closeErrorAL);
                 validBet = false;
             }
         }
     }
-
     private class submitDiceBetActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
             double bet = Double.parseDouble(gameView.getDiceBettingAmount().getText());
-            //TODO: Error checking if this is not an integer.
             if(bet > 0 & bet <= GameView.getWallet()) {
-                System.out.println("Your bet is $" + bet + "!");
                 gameView.updateDiceBet();
                 validBet = true;
-            } else if (bet < 1) {
-                System.out.println("That is an invalid bet! You have to bet at least $1.");
+            } else if (bet < 0) {
                 gameView.informInvalidBetNonpositive(closeErrorAL);
                 validBet = false;
-            } else {
-                System.out.println("That is an invalid bet! You have to bet less than your balance.");
+            } else if(bet > balance) {
                 gameView.informInvalidBetTooLarge(closeErrorAL);
+                validBet = false;
+            } else {
+                gameView.informInvalidBetNotNumber(closeErrorAL);
                 validBet = false;
             }
         }
     }
-
     private class confirmPasswordActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
@@ -338,8 +298,7 @@ public class ClientGUI {
             }
 
             if (serverMsg.equals("password error")) {
-                System.out.println("Username or password is incorrect!");
-                //TODO: add more error checking/different error message
+                loginView.informGeneralLoginError(closeErrorAL);
             } else {
                 passwordView.closeChangePassword();
                 loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
@@ -347,25 +306,22 @@ public class ClientGUI {
             }
         }
     }
-
     private class cancelActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            System.out.println("Cancel button was pressed!");
             passwordView.closeChangePassword();
             loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
         }
     }
-
     private boolean requestServerCoinFlip (String predictedResult, String bet) {
-        if (predictedResult == null || !validBet) {
-            //TODO: Add error to inform user they need to select a betting amount or guess for heads/tails
-            System.out.println("Invalid bet");
+        if (predictedResult == null) {
+            gameView.informNoPrediction(closeErrorAL);
+            return false;
+        } else if(!validBet) {
             return false;
         } else {
             double tempBet = Double.parseDouble(bet);
             if ( !(tempBet > 0 & tempBet <= GameView.getWallet()) || (tempBet < 1) ) {
-                //TODO: Add error message(s)
                 System.out.println("Invalid bet!");
                 return false;
             } else {
@@ -377,20 +333,17 @@ public class ClientGUI {
             return true;
         }
     }
-
     private void sendLoginInfoToServer (String password) {
         writer.println(username);
         writer.println(password);
         writer.flush();
     }
-
     private void sendChangePasswordInfoToServer (String username, String oldPassword, String newPassword) {
         writer.println(username);
         writer.println(oldPassword);
         writer.println(newPassword);
         writer.flush();
     }
-
     private void loadUserBalance (String username) {
         writer.println("balance");
         writer.println(username);
@@ -403,7 +356,6 @@ public class ClientGUI {
             ex.printStackTrace();
         }
     }
-
     private void updateUserBalance (double newBalance) {
         writer.println("update");
         writer.println(username);
@@ -411,14 +363,14 @@ public class ClientGUI {
         writer.flush();
 
         balance += newBalance;
-        System.out.println("Balance from updateUserBalance : " + balance);
+        System.out.println("Balance from updateUserBalance: " + balance);
         gameView.updateWallet(balance);
     }
-
     private boolean requestServerDieRoll (String predictedResult, String bet) {
-        if (predictedResult == null || !validBet) {
-            //TODO: Add error to inform user they need to select a betting amount or guess for heads/tails
-            System.out.println("Invalid bet");
+        if (predictedResult == null) {
+            gameView.informNoPrediction(closeErrorAL);
+            return false;
+        } else if(!validBet) {
             return false;
         } else {
             writer.println("roll");

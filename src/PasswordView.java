@@ -11,15 +11,12 @@ public class PasswordView {
     public JTextField getPassUsername() {
         return passUsername;
     }
-
     public JTextField getOldPassword() {
         return oldPassword;
     }
-
     public JTextField getNewPassword() {
         return newPassword;
     }
-
     public void openChangePassword(ActionListener confirmPassAL, ActionListener cancelAL) {
         System.out.println("Opening Change Password GUI...");
         passwordFrame = new JFrame("Change Password");
@@ -55,25 +52,8 @@ public class PasswordView {
         passwordFrame.setVisible(true);
         System.out.println("Change Password GUI Initialized!");
     }
-
     public void closeChangePassword() {
         System.out.println("Closing Change Password GUI...");
         passwordFrame.setVisible(false);
     }
-
-    public void informUsernameDoesNotExist(ActionListener closeAL) {
-        passUsername.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(3,closeAL);
-    }
-
-    public void informIncorrectPassword(ActionListener closeAL) {
-        oldPassword.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(4,closeAL);
-    }
-
-    public void informInvalidPassword(ActionListener closeAL) {
-        newPassword.setBorder(BorderFactory.createLineBorder(Color.red));
-        ErrorView.makeErrorPopup(2,closeAL);
-    }
-
 }

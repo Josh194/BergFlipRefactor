@@ -1,10 +1,8 @@
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
-import java.sql.SQLException;
 
 public class Server {
-
     static final int SERVER_PORT = 7000;
 
     public static void main(String[] args) {
@@ -27,7 +25,7 @@ public class Server {
                     e.printStackTrace();
                 }
             }
-            //model.conn.close();
+
         } catch (IOException e) {
             e.printStackTrace();
         }

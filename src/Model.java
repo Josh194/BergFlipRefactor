@@ -1,10 +1,8 @@
-import javax.swing.plaf.nimbus.State;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Objects;
 
 public class Model {
-    //Connection conn;
     private final static int initialBalance = 100;
     private final static int leaderboardRows = 3;
     private final static int leaderboardColumns = 2;
@@ -34,13 +32,10 @@ public class Model {
                     "score INTEGER," +
                     "username STRING);";
             conn.createStatement().executeUpdate(cmd);
-
-            conn.close();
         } catch (SQLException e) {
             e.printStackTrace();
         }
     }
-
     public synchronized void addUser(String username, String password) {
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
             PreparedStatement stmt = conn.prepareStatement("INSERT INTO userData (username, password, balance) VALUES (?, ?, " + initialBalance + ");");
@@ -53,7 +48,6 @@ public class Model {
             e.printStackTrace();
         }
     }
-
     public synchronized void updatePassword (String username, String newPassword) {
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
             PreparedStatement stmt = conn.prepareStatement("UPDATE userData SET password = ? WHERE username = ?;");
@@ -66,7 +60,6 @@ public class Model {
             e.printStackTrace();
         }
     }
-
     public synchronized void addLeaderboardScore (String username, int score) {
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
             PreparedStatement stmt = conn.prepareStatement("INSERT INTO leaderboard (username, score) VALUES (?, ?);");
@@ -79,7 +72,6 @@ public class Model {
             e.printStackTrace();
         }
     }
-
     public synchronized String[][] getLeaderboardScores() {
         String[][] retArr = new String[leaderboardRows][leaderboardColumns];
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
@@ -99,7 +91,6 @@ public class Model {
         }
         return retArr;
     }
-
     public synchronized double getBalance(String username) {
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
             PreparedStatement stmt = conn.prepareStatement("SELECT balance FROM userData WHERE username = ?;");
@@ -117,7 +108,6 @@ public class Model {
 
         return -1;
     }
-
     private synchronized ArrayList<String> getUsers() {
         ArrayList<String> users = new ArrayList<>();
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
@@ -136,7 +126,6 @@ public class Model {
 
         return users;
     }
-
     public boolean doesUserExist(String username) {
         ArrayList<String> Users = this.getUsers();
         for (String user : Users) {
@@ -146,7 +135,6 @@ public class Model {
         }
         return false;
     }
-
     public synchronized boolean checkLoginCredentials (String username, String password) {
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
             PreparedStatement stmt = conn.prepareStatement("SELECT username, password FROM userData WHERE username = ? AND password = ?");
@@ -169,7 +157,6 @@ public class Model {
         }
         return false;
     }
-
     public synchronized void updateUserBalance (String username, String addedBalance) {
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
             PreparedStatement stmt = conn.prepareStatement("UPDATE userData SET balance = balance + ? WHERE username = ?");
