@@ -15,7 +15,8 @@ public class GameView {
     private JLabel diceResult;
     private JLabel flipStatusLabel;
     private JLabel rollStatusLabel;
-    private final JLabel playerBal = new JLabel();
+    private final JLabel playerBalCoin = new JLabel();
+    private final JLabel playerBalDice = new JLabel();
 
     private String predictedUserResult;
     private static double wallet = 0;
@@ -70,7 +71,8 @@ public class GameView {
     }
     public void updateWallet(double newBalance) {
         wallet = newBalance;
-        playerBal.setText("Your Balance: $" + wallet);
+        playerBalCoin.setText("Your Balance: $" + wallet);
+        playerBalDice.setText("Your Balance: $" + wallet);
     }
     public void updateFlipStatus() {
         flipStatusLabel.setText("The coin was flipped!");
@@ -174,9 +176,9 @@ public class GameView {
         title.add(instructions2);
         title.add(instructions3);
 
-        playerBal.setText("Your Balance: $" + wallet);
-        playerBal.setHorizontalAlignment(JLabel.CENTER);
-        title.add(playerBal);
+        playerBalCoin.setText("Your Balance: $" + wallet);
+        playerBalCoin.setHorizontalAlignment(JLabel.CENTER);
+        title.add(playerBalCoin);
 
         return title;
     }
@@ -205,9 +207,9 @@ public class GameView {
         title.add(instructions2);
         title.add(instructions3);
 
-        playerBal.setText("Your Balance: $" + wallet);
-        playerBal.setHorizontalAlignment(JLabel.CENTER);
-        title.add(playerBal);
+        playerBalDice.setText("Your Balance: $" + wallet);
+        playerBalDice.setHorizontalAlignment(JLabel.CENTER);
+        title.add(playerBalDice);
 
         return title;
     }
