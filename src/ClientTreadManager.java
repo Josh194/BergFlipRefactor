@@ -33,52 +33,33 @@ public class ClientTreadManager extends Thread {
                     case "exit":
                         this.socket.close();
                         break;
-                    case "login": {
-                        String line = reader.readLine();
-                        String line2 = reader.readLine();
-                        System.out.println("Lines : " + line + " " + line2 + " [Line End]");
-                        loginUser(line, line2);
-                    }
+                    case "login":
+                        loginUser(reader.readLine(), reader.readLine());
                         break;
-                    case "register": {
-                        String line = reader.readLine();
-                        String line2 = reader.readLine();
-                        System.out.println("Lines : " + line + " " + line2 + " [Line End]");
-                        registerUser(line, line2);
-                    }
+                    case "register":
+                        registerUser(reader.readLine(), reader.readLine());
                         break;
-                    case "changePass": {
-                        String line = reader.readLine();
-                        String line2 = reader.readLine();
-                        String line3 = reader.readLine();
-                        System.out.println("Lines : " + line + " " + line2 + " " + line3 + " [Line End]");
-                        changeUserPassword(line, line2, line3);
-                    }
+                    case "changePass":
+                        changeUserPassword(reader.readLine(), reader.readLine(), reader.readLine());
                         break;
-                    case "flip": {
-                        String line = reader.readLine();
-                        String line2 = reader.readLine();
-                        System.out.println("Lines : " + line + " " + line2 + " [Line End]");
-                        flipCoin(line, line2);
-                    }
+                    case "flip":
+                        flipCoin(reader.readLine(), reader.readLine());
                         break;
-                    case "balance": {
-                        String line = reader.readLine();
-                        System.out.println("Lines : " + line + " [Line End]");
-                        writer.println(model.getBalance(line));
+                    case "balance":
+                        writer.println(model.getBalance(reader.readLine()));
                         writer.flush();
-                    }
                         break;
-                    case "update": {
-                        String line = reader.readLine();
-                        String line2 = reader.readLine();
-                        System.out.println("Lines : " + line + " " +  line2 + " [Line End]");
-                        model.updateUserBalance(line, line2);
-                    }
+                    case "update":
+                        model.updateUserBalance(reader.readLine(), reader.readLine());
+                        break;
+                    case "leaderboard":
+                        getLeaderboardScores();
+                        break;
+                    case "roll":
+                        rollDie(reader.readLine(), reader.readLine());
                         break;
                     default:
-                        // TODO: reimplement when other prints removed
-                        // System.out.println("Received: " + msg);
+                        System.out.println("Received: " + msg);
                         break;
                 }
             }
@@ -106,6 +87,19 @@ public class ClientTreadManager extends Thread {
         writer.flush();
     }
 
+    private void rollDie (String predictedResult, String bet) {
+        double payout = 0.0;
+        int roll = 1 + rand.nextInt(6);
+
+        if (roll == Integer.parseInt(predictedResult)) {
+            payout = Integer.parseInt(bet) * 2;
+        }
+
+        System.out.println("Payout: " + payout);
+        writer.println(payout);
+        writer.flush();
+    }
+
     private void loginUser (String username, String password) {
         if (model.checkLoginCredentials(username, password)) {
             System.out.println("Logged in user for client " + socket.toString());
@@ -114,6 +108,16 @@ public class ClientTreadManager extends Thread {
             System.out.println("Invalid username or password for client " + socket.toString());
             sendMessageToClient("invalid user");
         }
+    }
+
+    private void getLeaderboardScores() {
+        String[][] retArr = model.getLeaderboardScores();
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 2; j++) {
+                writer.println(retArr[i][j]);
+            }
+        }
+        writer.flush();
     }
 
     private void registerUser (String username, String password) {

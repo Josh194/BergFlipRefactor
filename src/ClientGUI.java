@@ -9,6 +9,7 @@ public class ClientGUI {
     private final PasswordView passwordView;
     private final closeErrorActionListener closeErrorAL;
     private final closeSuccessActionListener closeSuccessAL;
+    private String[][] leaderboardData = new String[3][2];
 
     private Socket socket = null;
     private BufferedReader reader = null;
@@ -42,15 +43,7 @@ public class ClientGUI {
     private final refreshActionListener refreshAL;
 
     public ClientGUI() {
-        try {
-            System.out.println("Connecting to 127.0.0.1...");
-            this.socket = new Socket("127.0.0.1", Server.SERVER_PORT);
-            writer = new PrintWriter(socket.getOutputStream());
-            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
-            System.out.println("Success!");
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+
 
         //Login GUI ActionListeners
         loginAL = new loginActionListener();
@@ -80,6 +73,25 @@ public class ClientGUI {
         loginView = new LoginView(loginAL,registerAL,passwordAL,exitAL);
         passwordView = new PasswordView();
         gameView = new GameView();
+
+        try {
+            System.out.println("Connecting to 127.0.0.1...");
+            this.socket = new Socket("127.0.0.1", Server.SERVER_PORT);
+            writer = new PrintWriter(socket.getOutputStream());
+            reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+            System.out.println("Success!");
+
+            writer.println("leaderboard");
+            writer.flush();
+
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 2; j++) {
+                    leaderboardData[i][j] = reader.readLine();
+                }
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
     }
 
     private class loginActionListener implements ActionListener {
@@ -105,8 +117,7 @@ public class ClientGUI {
             } catch (IOException ex) {
                 ex.printStackTrace();
             }
-
-
+            gameView.fillLeaderboard(leaderboardData);
         }
     }
 
@@ -162,6 +173,8 @@ public class ClientGUI {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Exit button was pressed!");
+            writer.println("exit");
+            writer.flush();
             loginView.closeLogin();
             System.out.println("Closing Program...");
             System.exit(0);
@@ -195,7 +208,7 @@ public class ClientGUI {
         public void actionPerformed(ActionEvent e) {
             try {
                 String bet = gameView.getDiceBettingAmount().getText();
-                if () { // ADD CODE TO ROLL DIE HERE --------------------------------------------------------------------------------------------------
+                if (requestServerDieRoll(gameView.getDicePrediction().getText(), bet)) { // ADD CODE TO ROLL DIE HERE --------------------------------------------------------------------------------------------------
                     serverMsg = reader.readLine();
                     if (!serverMsg.equals("0.0")) {
                         updateUserBalance(Double.parseDouble(serverMsg));
@@ -224,6 +237,19 @@ public class ClientGUI {
     private class refreshActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
+            writer.println("leaderboard");
+            writer.flush();
+
+            for (int i = 0; i < 3; i++) {
+                for (int j = 0; j < 2; j++) {
+                    try {
+                        leaderboardData[i][j] = reader.readLine();
+                    } catch (IOException ex) {
+                        ex.printStackTrace();
+                    }
+                }
+            }
+            gameView.fillLeaderboard(leaderboardData);
             System.out.println("Refresh button was pressed!");
         }
     }
@@ -256,13 +282,13 @@ public class ClientGUI {
     private class submitCoinBetActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            int bet = Integer.parseInt(gameView.getCoinBettingAmount().getText());
+            double bet = Double.parseDouble(gameView.getCoinBettingAmount().getText());
             //TODO: Error checking if this is not an integer.
             if(bet > 0 & bet <= GameView.getWallet()) {
                 System.out.println("Your bet is $" + bet + "!");
                 gameView.updateCoinBet();
                 validBet = true;
-            } else if(bet < 1) {
+            } else if (bet < 0) {
                 System.out.println("That is an invalid bet! You have to bet at least $1.");
                 gameView.informInvalidBetNonpositive(closeErrorAL);
                 validBet = false;
@@ -277,13 +303,13 @@ public class ClientGUI {
     private class submitDiceBetActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            int bet = Integer.parseInt(gameView.getDiceBettingAmount().getText());
+            double bet = Double.parseDouble(gameView.getDiceBettingAmount().getText());
             //TODO: Error checking if this is not an integer.
             if(bet > 0 & bet <= GameView.getWallet()) {
                 System.out.println("Your bet is $" + bet + "!");
                 gameView.updateDiceBet();
                 validBet = true;
-            } else if(bet < 1) {
+            } else if (bet < 1) {
                 System.out.println("That is an invalid bet! You have to bet at least $1.");
                 gameView.informInvalidBetNonpositive(closeErrorAL);
                 validBet = false;
@@ -331,16 +357,23 @@ public class ClientGUI {
         }
     }
 
-    private boolean requestServerCoinFlip (String predictedResult, String Bet) {
+    private boolean requestServerCoinFlip (String predictedResult, String bet) {
         if (predictedResult == null || !validBet) {
             //TODO: Add error to inform user they need to select a betting amount or guess for heads/tails
             System.out.println("Invalid bet");
             return false;
         } else {
-            writer.println("flip");
-            writer.println(predictedResult);
-            writer.println(Bet);
-            writer.flush();
+            double tempBet = Double.parseDouble(bet);
+            if ( !(tempBet > 0 & tempBet <= GameView.getWallet()) || (tempBet < 1) ) {
+                //TODO: Add error message(s)
+                System.out.println("Invalid bet!");
+                return false;
+            } else {
+                writer.println("flip");
+                writer.println(predictedResult);
+                writer.println(bet);
+                writer.flush();
+            }
             return true;
         }
     }
@@ -380,5 +413,19 @@ public class ClientGUI {
         balance += newBalance;
         System.out.println("Balance from updateUserBalance : " + balance);
         gameView.updateWallet(balance);
+    }
+
+    private boolean requestServerDieRoll (String predictedResult, String bet) {
+        if (predictedResult == null || !validBet) {
+            //TODO: Add error to inform user they need to select a betting amount or guess for heads/tails
+            System.out.println("Invalid bet");
+            return false;
+        } else {
+            writer.println("roll");
+            writer.println(predictedResult);
+            writer.println(bet);
+            writer.flush();
+            return true;
+        }
     }
 }

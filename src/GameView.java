@@ -1,4 +1,5 @@
 import javax.swing.*;
+import javax.swing.table.DefaultTableModel;
 import java.awt.*;
 import java.awt.event.ActionListener;
 
@@ -7,6 +8,7 @@ public class GameView {
     private JTextField coinBettingAmount;
     private JTextField diceBettingAmount;
     private JTextField dicePrediction;
+    private JTable leaderboardTable;
 
     private JLabel headsOrTails;
     private JLabel userCoinBet;
@@ -21,11 +23,6 @@ public class GameView {
     private String gamemode = "COIN";
     private static double wallet = 0;
     private JFrame gameFrame;
-    private DefaultListModel<String> listModel;
-
-    public GameView() {
-        listModel = new DefaultListModel<String>();
-    }
 
     public String getPredictedUserResult() {
         return predictedUserResult;
@@ -81,12 +78,12 @@ public class GameView {
     }
 
     public void updateCoinBet() {
-        int bet = Integer.parseInt(coinBettingAmount.getText());
+        double bet = Double.parseDouble(coinBettingAmount.getText());
         userCoinBet.setText("Bet: $" + bet);
     }
 
     public void updateDiceBet() {
-        int bet = Integer.parseInt(diceBettingAmount.getText());
+        double bet = Double.parseDouble(diceBettingAmount.getText());
         userDiceBet.setText("Bet: $" + bet);
     }
 
@@ -364,17 +361,28 @@ public class GameView {
         return buttons;
     }
 
-    private JPanel makeLeaderboardTab(ActionListener refreshAL) {
+    public JPanel makeLeaderboardTab(ActionListener refreshAL) {
         JPanel leaderboard = new JPanel();
+        leaderboard.setLayout(new BoxLayout(leaderboard, BoxLayout.Y_AXIS));
 
         JButton refreshButton = new JButton("Refresh");
         refreshButton.addActionListener(refreshAL);
-        JList<String> leaderboardList = new JList<String>(listModel);
 
-        leaderboard.add(leaderboardList);
+        String[] columnNames = {"Username", "Score"};
+        Object[][] data = {{" ", " "}, {" ", " "}, {" ", " "}};
+        leaderboardTable = new JTable(data, columnNames);
+
         leaderboard.add(refreshButton);
+        leaderboard.add(leaderboardTable);
 
         return leaderboard;
     }
 
+    public void fillLeaderboard (String[][] leaderboardData) {
+        for (int i = 0; i < 3; i++) {
+            for (int j = 0; j < 2; j++) {
+                leaderboardTable.setValueAt(leaderboardData[i][j], i, j);
+            }
+        }
+    }
 }

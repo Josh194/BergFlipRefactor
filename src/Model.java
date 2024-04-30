@@ -6,7 +6,8 @@ import java.util.Objects;
 public class Model {
     //Connection conn;
     private final static int initialBalance = 100;
-    private final static int leaderboardEntries = 3;
+    private final static int leaderboardRows = 3;
+    private final static int leaderboardColumns = 2;
 
     public Model() {
         createInitialLeaderboard();
@@ -79,16 +80,19 @@ public class Model {
         }
     }
 
-    public synchronized double[] getLeaderboardScores() {
-        double[] retArr = new double[leaderboardEntries];
+    public synchronized String[][] getLeaderboardScores() {
+        String[][] retArr = new String[leaderboardRows][leaderboardColumns];
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
             Statement stmt = conn.createStatement();
-            ResultSet resultSet = stmt.executeQuery("SELECT balance, username from userData ORDER BY balance DESC LIMIT " + leaderboardEntries);
-            for (int i = 0; i < leaderboardEntries; i++) {
-                resultSet.next();
-                retArr[i] = resultSet.getDouble(1);
-                System.out.println(resultSet.getString(2));
+            ResultSet resultSet = stmt.executeQuery("SELECT username, balance from userData ORDER BY balance DESC LIMIT " + leaderboardRows);
+            int row = 0;
+            while (resultSet.next()) {
+                for (int i = 0; i < leaderboardColumns; i++) {
+                    retArr[row][i] = resultSet.getString(i + 1);
+                }
+                row++;
             }
+
             resultSet.close();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -96,12 +100,12 @@ public class Model {
         return retArr;
     }
 
-    public synchronized int getBalance(String username) {
+    public synchronized double getBalance(String username) {
         try (Connection conn = DriverManager.getConnection("jdbc:sqlite:gameData.db")) {
             PreparedStatement stmt = conn.prepareStatement("SELECT balance FROM userData WHERE username = ?;");
             stmt.setString(1, username);
 
-            int balance = stmt.executeQuery().getInt(1);
+            double balance = stmt.executeQuery().getDouble(1);
 
             stmt.close();
             conn.close();
