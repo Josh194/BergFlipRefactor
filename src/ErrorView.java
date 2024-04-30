@@ -33,6 +33,15 @@ public class ErrorView {
             case 6: errorMessage1 = new JLabel("Amount to bet is invalid.");
                     errorMessage2 = new JLabel("Your bet less than your current balance: " + GameView.getWallet() + ".");
                     break;
+            case 7: errorMessage1 = new JLabel("Amount to bet is invalid.");
+                    errorMessage2 = new JLabel("Your bet must be a number. Please avoid using letters.");
+                    break;
+            case 8: errorMessage1 = new JLabel("No prediction was submitted.");
+                    errorMessage2 = new JLabel("Please submit a prediction before playing the game.");
+                    break;
+            case 9: errorMessage1 = new JLabel("No bet was submitted.");
+                    errorMessage2 = new JLabel("Please submit a bet before playing the game.");
+                    break;
         }
 
         errorMessage1.setHorizontalAlignment(JLabel.CENTER);
