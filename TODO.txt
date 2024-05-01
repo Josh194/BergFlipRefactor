@@ -1,0 +1,27 @@
+- error checking for running client without server running
+- add a gif
+- clean up leaderboard graphics
+- inform user that username and password need to be 8 characters
+- make separate gui for creating an account
+- make an account tab for managing money and user info
+    - has backup codes for changing password?
+- add icons to menu bar at top of programs
+- clean up error checks everywhere (Make more unique errors for everything)
+    - invalid username / username already exists / incorrect username
+    - invalid password / incorrect password
+    - JPasswordField to mask password
+    - password requirements (numbers, capitals, etc)
+- display all parameters and results on successview popup
+- dropdown menu for dice prediction
+- more than just d6's for dice betting
+- multiple coins betting
+- refactor GameView.java (maybe split class)
+- Limit popups, try showing errors on existing gui (red text, highlight text fields, etc)
+- bankruptcy handling
+- win/loss tracking / win streaks
+- x error icon for error popups
+- error popup for missing JDK files
+- clear text fields after submitting
+- display results of coin flip / die roll (show it landed heads, show it rolled a 5, etc)
+- no bet, no win / loss?
+-

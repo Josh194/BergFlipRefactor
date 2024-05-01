@@ -152,9 +152,9 @@ public class ClientGUI {
         @Override
         public void actionPerformed(ActionEvent e) {
             System.out.println("Client Closing Program...");
+            loginView.closeLogin();
             writer.println("exit");
             writer.flush();
-            loginView.closeLogin();
             System.exit(0);
         }
     }
