@@ -171,6 +171,7 @@ public class ClientGUI {
                         updateUserBalance(-Double.parseDouble(bet));
                     }
                     System.out.println("Paid out $" + serverMsg);
+                    SuccessView.makeResultsPopup(closeSuccessAL,Double.parseDouble(serverMsg),"COIN");
                     gameView.updateFlipStatus();
                 }
             } catch (IOException ex) {
@@ -183,7 +184,7 @@ public class ClientGUI {
         public void actionPerformed(ActionEvent e) {
             try {
                 String bet = gameView.getDiceBettingAmount().getText();
-                if (requestServerDieRoll(gameView.getDicePrediction().getText(), bet)) { // ADD CODE TO ROLL DIE HERE --------------------------------------------------------------------------------------------------
+                if (requestServerDieRoll(gameView.getDicePrediction().getText(), bet)) {
                     serverMsg = reader.readLine();
                     if (!serverMsg.equals("0.0")) {
                         updateUserBalance(Double.parseDouble(serverMsg));
@@ -191,6 +192,7 @@ public class ClientGUI {
                         updateUserBalance(-Double.parseDouble(bet));
                     }
                     System.out.println("Paid out $" + serverMsg);
+                    SuccessView.makeResultsPopup(closeSuccessAL,Double.parseDouble(serverMsg),"DICE");
                     gameView.updateRollStatus();
                 }
             } catch (IOException ex) {
@@ -240,7 +242,11 @@ public class ClientGUI {
         @Override
         public void actionPerformed(ActionEvent e) {
             int userDicePrediction = Integer.parseInt(gameView.getDicePrediction().getText());
-            gameView.updateDicePredictedResult(userDicePrediction);
+            if(userDicePrediction < 1 || userDicePrediction > 6) {
+                ErrorView.makeErrorPopup(11,closeErrorAL);
+            } else {
+                gameView.updateDicePredictedResult(userDicePrediction);
+            }
         }
     }
     private class submitCoinBetActionListener implements ActionListener {

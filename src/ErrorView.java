@@ -45,6 +45,9 @@ public class ErrorView {
             case 10: errorMessage1 = new JLabel("Username or Password incorrect or invalid.");
                      errorMessage2 = new JLabel("Make sure credentials are typed correctly.");
                      break;
+            case 11: errorMessage1 = new JLabel("Prediction was invalid.");
+                     errorMessage2 = new JLabel("Choose a side 1 through 6 to predict.");
+                     break;
         }
 
         errorMessage1.setHorizontalAlignment(JLabel.CENTER);
