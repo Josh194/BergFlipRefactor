@@ -1,9 +1,13 @@
+package server;
 import java.io.*;
 import java.net.ServerSocket;
 import java.net.Socket;
 
+import server.main.Model;
+import server.net.ClientThreadManager;
+
 public class Server {
-    static final int SERVER_PORT = 7000;
+    public static final int SERVER_PORT = 7000;
 
     public static void main(String[] args) {
         try {
@@ -19,7 +23,7 @@ public class Server {
                     PrintWriter writer = new PrintWriter(socket.getOutputStream());
 
                     System.out.println("Creating thread for client...");
-                    Thread clientThread = new ClientTreadManager(reader, writer, socket, model);
+                    Thread clientThread = new ClientThreadManager(reader, writer, socket, model);
                     clientThread.start();
                 } catch (Exception e) {
                     e.printStackTrace();

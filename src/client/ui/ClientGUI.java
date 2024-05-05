@@ -1,7 +1,10 @@
+package client.ui;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
+
+import server.Server;
 
 public class ClientGUI {
     private final LoginView loginView;

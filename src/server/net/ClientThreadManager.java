@@ -1,3 +1,4 @@
+package server.net;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -5,14 +6,16 @@ import java.net.Socket;
 import java.util.Objects;
 import java.util.Random;
 
-public class ClientTreadManager extends Thread {
+import server.main.Model;
+
+public class ClientThreadManager extends Thread {
     private final BufferedReader reader;
     private final PrintWriter writer;
     private final Socket socket;
     private final Model model;
     private final Random rand = new Random();
 
-    public ClientTreadManager(BufferedReader reader, PrintWriter writer, Socket socket, Model model) {
+    public ClientThreadManager(BufferedReader reader, PrintWriter writer, Socket socket, Model model) {
         this.reader = reader;
         this.writer = writer;
         this.socket = socket;

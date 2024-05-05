@@ -1,3 +1,4 @@
+package server.main;
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.Objects;
