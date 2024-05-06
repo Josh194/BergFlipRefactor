@@ -12,7 +12,6 @@ import java.lang.annotation.RetentionPolicy;
 
 // TODO: support serialization of nested classes
 // TODO: document serialized data format
-// * abstract to prevent instantiation (as should never be necessary), but could be easily removed in the future if needed
 /**
  * Base class for serializable messages. Also provides functions for serialization and deserialization.
  * <p>
@@ -20,7 +19,7 @@ import java.lang.annotation.RetentionPolicy;
  * Subclasses must declare a unique ID, and mark any field they wish to be serialized as {@code @Serialize}.
  */
 public abstract class Message {
-	class InvalidFieldTypeException extends Exception {}
+	public class InvalidFieldTypeException extends Exception {}
 
 	@Target(ElementType.FIELD) // TODO: check that this is correct
 	@Retention(RetentionPolicy.RUNTIME) // TODO: is there a way to avoid this requirement (ie a templated base function?)

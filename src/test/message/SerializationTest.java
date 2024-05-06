@@ -22,10 +22,12 @@ public class SerializationTest {
 		ByteArrayOutputStream writeStream = new ByteArrayOutputStream();
 
 		{
+			Message genericReference = reference;
+
 			DataOutputStream os = new DataOutputStream(writeStream);
 
 			try {
-				reference.writeTo(os);
+				genericReference.writeTo(os);
 
 				os.flush();
 			} catch (Exception e) {
@@ -49,11 +51,13 @@ public class SerializationTest {
 		TestMessage message = new TestMessage();
 
 		{
+			Message genericReference = message;
+
 			DataInputStream is = new DataInputStream(new ByteArrayInputStream(writeStream.toByteArray()));
 
 			try {
 				messageId = Message.readMessageType(is);
-				message.readFrom(is);
+				genericReference.readFrom(is);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}

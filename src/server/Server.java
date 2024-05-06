@@ -4,7 +4,7 @@ import java.net.ServerSocket;
 import java.net.Socket;
 
 import server.main.Model;
-import server.net.ClientThreadManager;
+import server.net.ClientContext;
 
 public class Server {
     public static final int SERVER_PORT = 7000;
@@ -19,11 +19,11 @@ public class Server {
                     Socket socket = coinFlipServer.accept();
                     System.out.println("Connected to client: " + socket.toString());
 
-                    BufferedReader reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+                    BufferedInputStream inputStream = new BufferedInputStream(socket.getInputStream());
                     PrintWriter writer = new PrintWriter(socket.getOutputStream());
 
                     System.out.println("Creating thread for client...");
-                    Thread clientThread = new ClientThreadManager(reader, writer, socket, model);
+                    Thread clientThread = new ClientContext(inputStream, writer, socket, model);
                     clientThread.start();
                 } catch (Exception e) {
                     e.printStackTrace();

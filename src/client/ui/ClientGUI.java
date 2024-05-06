@@ -1,10 +1,13 @@
 package client.ui;
+
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
 
 import server.Server;
+import server.net.messages.*;
+import shared.net.message.Message.InvalidFieldTypeException;
 
 public class ClientGUI {
     private final LoginView loginView;
@@ -16,7 +19,7 @@ public class ClientGUI {
 
     private Socket socket = null;
     private BufferedReader reader = null;
-    private PrintWriter writer = null;
+    private DataOutputStream outputStream = null;
     private String serverMsg = null;
     private Boolean validBet = false;
     private String username;
@@ -70,12 +73,18 @@ public class ClientGUI {
         try {
             System.out.println("Connecting to 127.0.0.1...");
             this.socket = new Socket("127.0.0.1", Server.SERVER_PORT);
-            writer = new PrintWriter(socket.getOutputStream());
+            outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
             reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
             System.out.println("Success!");
 
-            writer.println("leaderboard");
-            writer.flush();
+            try {
+                LeaderboardMessage msg = new LeaderboardMessage();
+
+                msg.writeTo(outputStream);
+                outputStream.flush();
+            } catch (InvalidFieldTypeException exception) {
+                exception.printStackTrace();
+            }
 
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 2; j++) {
@@ -93,8 +102,17 @@ public class ClientGUI {
             String password = loginView.getEnterPassword().getText();
             System.out.println("Username: " + username + ". Password: " + password + ".");
 
-            writer.println("login");
-            sendLoginInfoToServer(password);
+            try {
+                LoginMessage msg = new LoginMessage();
+
+                msg.username = username;
+                msg.password = password;
+
+                msg.writeTo(outputStream);
+                outputStream.flush();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
 
             try {
                 if (reader.readLine().equals("valid user")) {
@@ -117,8 +135,18 @@ public class ClientGUI {
             String password = loginView.getEnterPassword().getText();
             System.out.println("Register button was pressed!");
 
-            writer.println("register");
-            sendLoginInfoToServer(password);
+            try {
+                RegisterMessage msg = new RegisterMessage();
+
+                msg.username = username;
+                msg.password = password;
+
+                msg.writeTo(outputStream);
+                outputStream.flush();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+
             try {
                 serverMsg = reader.readLine();
             } catch (IOException ex) {
@@ -156,8 +184,16 @@ public class ClientGUI {
         public void actionPerformed(ActionEvent e) {
             System.out.println("Client Closing Program...");
             loginView.closeLogin();
-            writer.println("exit");
-            writer.flush();
+
+            try {
+                ExitMessage msg = new ExitMessage();
+
+                msg.writeTo(outputStream);
+                outputStream.flush();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
+
             System.exit(0);
         }
     }
@@ -213,8 +249,14 @@ public class ClientGUI {
     private class refreshActionListener implements ActionListener {
         @Override
         public void actionPerformed(ActionEvent e) {
-            writer.println("leaderboard");
-            writer.flush();
+            try {
+                LeaderboardMessage msg = new LeaderboardMessage();
+
+                msg.writeTo(outputStream);
+                outputStream.flush();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
 
             for (int i = 0; i < 3; i++) {
                 for (int j = 0; j < 2; j++) {
@@ -297,8 +339,18 @@ public class ClientGUI {
             String oldPassword = passwordView.getOldPassword().getText();
             String newPassword = passwordView.getNewPassword().getText();
 
-            writer.println("changePass");
-            sendChangePasswordInfoToServer(username, oldPassword, newPassword);
+            try {
+                ChangePasswordMessage msg = new ChangePasswordMessage();
+
+                msg.username = username;
+                msg.passwordOld = oldPassword;
+                msg.passwordNew = newPassword;
+
+                msg.writeTo(outputStream);
+                outputStream.flush();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
 
             try {
                 serverMsg = reader.readLine();
@@ -334,29 +386,32 @@ public class ClientGUI {
                 System.out.println("Invalid bet!");
                 return false;
             } else {
-                writer.println("flip");
-                writer.println(predictedResult);
-                writer.println(bet);
-                writer.flush();
+                try {
+                    FlipMessage msg = new FlipMessage();
+    
+                    msg.predictedResult = predictedResult;
+                    msg.bet = bet;
+    
+                    msg.writeTo(outputStream);
+                    outputStream.flush();
+                } catch (Exception exception) {
+                    exception.printStackTrace();
+                }
             }
             return true;
         }
     }
-    private void sendLoginInfoToServer (String password) {
-        writer.println(username);
-        writer.println(password);
-        writer.flush();
-    }
-    private void sendChangePasswordInfoToServer (String username, String oldPassword, String newPassword) {
-        writer.println(username);
-        writer.println(oldPassword);
-        writer.println(newPassword);
-        writer.flush();
-    }
     private void loadUserBalance (String username) {
-        writer.println("balance");
-        writer.println(username);
-        writer.flush();
+        try {
+            BalanceMessage msg = new BalanceMessage();
+
+            msg.username = username;
+
+            msg.writeTo(outputStream);
+            outputStream.flush();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
 
         try {
             balance = Double.parseDouble(reader.readLine());
@@ -366,10 +421,17 @@ public class ClientGUI {
         }
     }
     private void updateUserBalance (double newBalance) {
-        writer.println("update");
-        writer.println(username);
-        writer.println(newBalance);
-        writer.flush();
+        try {
+            UpdateMessage msg = new UpdateMessage();
+
+            msg.username = username;
+            msg.balanceNew = Double.toString(newBalance);
+
+            msg.writeTo(outputStream);
+            outputStream.flush();
+        } catch (Exception exception) {
+            exception.printStackTrace();
+        }
 
         balance += newBalance;
         System.out.println("Balance from updateUserBalance: " + balance);
@@ -382,10 +444,17 @@ public class ClientGUI {
         } else if(!validBet) {
             return false;
         } else {
-            writer.println("roll");
-            writer.println(predictedResult);
-            writer.println(bet);
-            writer.flush();
+            try {
+                RollMessage msg = new RollMessage();
+
+                msg.predictedResult = predictedResult;
+                msg.bet = bet;
+
+                msg.writeTo(outputStream);
+                outputStream.flush();
+            } catch (Exception exception) {
+                exception.printStackTrace();
+            }
             return true;
         }
     }
