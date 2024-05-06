@@ -16,5 +16,8 @@ public final class UpdateMessage extends ServerMessage {
 	}
 
 	@Serialize
-	public String username, balanceNew;
+	public String username;
+	
+	@Serialize
+	public double balanceNew;
 }

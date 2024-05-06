@@ -492,7 +492,7 @@ public class ClientGUI {
 			UpdateMessage msg = new UpdateMessage();
 
 			msg.username = username;
-			msg.balanceNew = Double.toString(newBalance);
+			msg.balanceNew = newBalance;
 
 			msg.writeTo(outputStream);
 			outputStream.flush();

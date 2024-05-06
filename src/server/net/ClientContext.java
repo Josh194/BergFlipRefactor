@@ -83,8 +83,8 @@ public class ClientContext extends Thread {
 		}
 	}
 	
-	public void updateBalance(String username, String balanceNew) {
-		model.updateUserBalance(username, balanceNew);
+	public void updateBalance(String username, double balanceNew) {
+		model.updateUserBalance(username, Double.toString(balanceNew));
 	}
 
 	public void balance(String username) {
