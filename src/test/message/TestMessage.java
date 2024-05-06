@@ -24,5 +24,8 @@ public final class TestMessage extends Message {
 	public int testIntArray[];
 
 	@Serialize
+	public double testDouble;
+
+	@Serialize
 	public short testInt2;
 }

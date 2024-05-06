@@ -81,6 +81,14 @@ public abstract class Message {
 			outputStream.writeShort(value);
 			break;
 		}
+		case Double value: {
+			outputStream.writeDouble(value);
+			break;
+		}
+		case Float value: {
+			outputStream.writeFloat(value);
+			break;
+		}
 		case Boolean value: {
 			outputStream.writeBoolean(value);
 			break;
@@ -211,6 +219,14 @@ public abstract class Message {
 		}
 		case Class<?> cl when (cl == Short.class) || (cl == short.class): {
 			field.set(this, inputStream.readShort());
+			break;
+		}
+		case Class<?> cl when (cl == Double.class) || (cl == double.class): {
+			field.set(this, inputStream.readDouble());
+			break;
+		}
+		case Class<?> cl when (cl == Float.class) || (cl == float.class): {
+			field.set(this, inputStream.readFloat());
 			break;
 		}
 		case Class<?> cl when (cl == Boolean.class) || (cl == boolean.class): {
