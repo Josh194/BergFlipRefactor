@@ -1,14 +1,16 @@
 package server.net;
 
-import java.io.BufferedReader;
 import java.io.InputStream;
+import java.io.OutputStream;
 import java.io.DataInputStream;
+import java.io.DataOutputStream;
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.net.Socket;
 import java.util.Objects;
 import java.util.Random;
 
+import client.net.messages.PasswordChangeValidation;
 import server.main.Model;
 import server.net.messages.BalanceMessage;
 import server.net.messages.ChangePasswordMessage;
@@ -23,20 +25,19 @@ import shared.net.message.Message;
 
 public class ClientContext extends Thread {
 	private final DataInputStream inputStream;
-	private final PrintWriter writer;
+	private final DataOutputStream outputStream;
 	private final Socket socket;
 	private final Model model;
 	private final Random rand = new Random();
 
-	public ClientContext(InputStream inputStream, PrintWriter writer, Socket socket, Model model) {
+	public ClientContext(InputStream inputStream, OutputStream outputStream, Socket socket, Model model) {
 		this.inputStream = new DataInputStream(inputStream);
-		this.writer = writer;
+		this.outputStream = new DataOutputStream(outputStream);
 		this.socket = socket;
 		this.model = model;
 	}
 
 	public void run() {
-		String msg;
 		model.getLeaderboardScores();
 
 		System.out.println("Waiting for client to send data...");
@@ -83,8 +84,16 @@ public class ClientContext extends Thread {
 	}
 
 	public void balance(String username) {
-		writer.println(model.getBalance(username));
-		writer.flush();
+		try {
+			client.net.messages.BalanceMessage msg = new client.net.messages.BalanceMessage();
+
+			msg.balance = Double.toString(model.getBalance(username));
+
+			msg.writeTo(outputStream);
+			outputStream.flush();
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
 	}
 
 	public void close() {
@@ -110,8 +119,17 @@ public class ClientContext extends Thread {
 		}
 
 		System.out.println("Payout : " + payout);
-		writer.println(payout);
-		writer.flush();
+
+		try {
+			client.net.messages.PayoutMessage msg = new client.net.messages.PayoutMessage();
+
+			msg.payout = Double.toString(payout);
+
+			msg.writeTo(outputStream);
+			outputStream.flush();
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
 	}
 
 	public void rollDie(String predictedResult, String bet) {
@@ -123,58 +141,96 @@ public class ClientContext extends Thread {
 		}
 
 		System.out.println("Payout: " + payout);
-		writer.println(payout);
-		writer.flush();
+
+		try {
+			client.net.messages.PayoutMessage msg = new client.net.messages.PayoutMessage();
+
+			msg.payout = Double.toString(payout);
+
+			msg.writeTo(outputStream);
+			outputStream.flush();
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
 	}
 
 	public void loginUser(String username, String password) {
+		client.net.messages.LoginValidationMessage msg = new client.net.messages.LoginValidationMessage();
+
 		if (model.checkLoginCredentials(username, password)) {
 			System.out.println("Logged in user for client " + socket.toString());
-			sendMessageToClient("valid user");
+			msg.response = "valid user";
 		} else {
 			System.out.println("Invalid username or password for client " + socket.toString());
-			sendMessageToClient("invalid user");
+			msg.response = "invalid user";
+		}
+
+		try {
+			msg.writeTo(outputStream);
+			outputStream.flush();
+		} catch (Exception exception) {
+			exception.printStackTrace();
 		}
 	}
 
 	public void getLeaderboardScores() {
+		client.net.messages.LeaderboardDataMessage msg = new client.net.messages.LeaderboardDataMessage();
+
 		String[][] retArr = model.getLeaderboardScores();
 
 		for (int i = 0; i < 3; i++) {
 			for (int j = 0; j < 2; j++) {
-				writer.println(retArr[i][j]);
+				msg.data[i * 2 + j] = retArr[i][j];
 			}
 		}
 
-		writer.flush();
+		try {
+			msg.writeTo(outputStream);
+			outputStream.flush();
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
 	}
 
 	public void registerUser(String username, String password) {
+		client.net.messages.RegisterValidationMessage msg = new client.net.messages.RegisterValidationMessage();
+
 		if (model.doesUserExist(username)) {
 			System.out.println("Username already taken for client " + socket.toString());
-			sendMessageToClient("username already taken");
+			msg.response = "username already taken";
 		} else if (username.length() < 8 || password.length() < 8) {
 			System.out.println("username or password is too short!");
-			sendMessageToClient("credentialError");
+			msg.response = "credentialError";
 		} else {
 			System.out.println("Successfully registered user for client " + socket.toString());
 			model.addUser(username, password);
-			sendMessageToClient("registered user");
+			msg.response = "registered user";
+		}
+
+		try {
+			msg.writeTo(outputStream);
+			outputStream.flush();
+		} catch (Exception exception) {
+			exception.printStackTrace();
 		}
 	}
 
 	public void changeUserPassword(String username, String oldPassword, String newPassword) {
+		PasswordChangeValidation msg = new PasswordChangeValidation();
+
 		if ((model.checkLoginCredentials(username, oldPassword)) && newPassword.length() > 7) {
 			model.updatePassword(username, newPassword);
-			sendMessageToClient("changed password");
+			msg.response = "changed password";
 			System.out.println("Changed password for client " + socket.toString());
 		} else {
-			sendMessageToClient("password error");
+			msg.response = "password error";
 		}
-	}
 
-	private void sendMessageToClient(String msg) {
-		writer.println(msg);
-		writer.flush();
+		try {
+			msg.writeTo(outputStream);
+			outputStream.flush();
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
 	}
 }

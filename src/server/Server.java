@@ -21,10 +21,10 @@ public class Server {
 					System.out.println("Connected to client: " + socket.toString());
 
 					BufferedInputStream inputStream = new BufferedInputStream(socket.getInputStream());
-					PrintWriter writer = new PrintWriter(socket.getOutputStream());
+					BufferedOutputStream outputStream = new BufferedOutputStream(socket.getOutputStream());
 
 					System.out.println("Creating thread for client...");
-					Thread clientThread = new ClientContext(inputStream, writer, socket, model);
+					Thread clientThread = new ClientContext(inputStream, outputStream, socket, model);
 					clientThread.start();
 				} catch (Exception e) {
 					e.printStackTrace();

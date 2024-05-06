@@ -5,9 +5,16 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
 
+import client.net.messages.LeaderboardDataMessage;
+import client.net.messages.LoginValidationMessage;
+import client.net.messages.PasswordChangeValidation;
+import client.net.messages.PayoutMessage;
+import client.net.messages.RegisterValidationMessage;
 import server.Server;
 import server.net.messages.*;
+import shared.net.message.Message;
 import shared.net.message.Message.InvalidFieldTypeException;
+import test.message.TestMessage;
 
 public class ClientGUI {
 	private final LoginView loginView;
@@ -18,7 +25,7 @@ public class ClientGUI {
 	private String[][] leaderboardData = new String[3][2];
 
 	private Socket socket = null;
-	private BufferedReader reader = null;
+	private DataInputStream inputStream = null;
 	private DataOutputStream outputStream = null;
 	private String serverMsg = null;
 	private Boolean validBet = false;
@@ -74,7 +81,7 @@ public class ClientGUI {
 			System.out.println("Connecting to 127.0.0.1...");
 			this.socket = new Socket("127.0.0.1", Server.SERVER_PORT);
 			outputStream = new DataOutputStream(new BufferedOutputStream(socket.getOutputStream()));
-			reader = new BufferedReader(new InputStreamReader(socket.getInputStream()));
+			inputStream = new DataInputStream(new BufferedInputStream(socket.getInputStream()));
 			System.out.println("Success!");
 
 			try {
@@ -86,9 +93,17 @@ public class ClientGUI {
 				exception.printStackTrace();
 			}
 
+			LeaderboardDataMessage msg = new LeaderboardDataMessage();
+
+			try {
+				msg.readFrom(inputStream);
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+
 			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j < 2; j++) {
-					leaderboardData[i][j] = reader.readLine();
+					leaderboardData[i][j] = msg.data[i * 2 + j];
 				}
 			}
 		} catch (IOException e) {
@@ -115,16 +130,20 @@ public class ClientGUI {
 				exception.printStackTrace();
 			}
 
+			LoginValidationMessage msg = new LoginValidationMessage();
+
 			try {
-				if (reader.readLine().equals("valid user")) {
-					loginView.closeLogin();
-					loadUserBalance(username);
-					gameView.openGame(flipCoinAL,rollDieAL,logoutAL,headsAL,tailsAL,submitCoinBetAL,submitDiceBetAL,refreshAL,dicePredictionAL);
-				} else {
-					loginView.informGeneralLoginError(closeErrorAL);
-				}
-			} catch (IOException ex) {
-				ex.printStackTrace();
+				msg.readFrom(inputStream);
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+
+			if (msg.response.equals("valid user")) {
+				loginView.closeLogin();
+				loadUserBalance(username);
+				gameView.openGame(flipCoinAL,rollDieAL,logoutAL,headsAL,tailsAL,submitCoinBetAL,submitDiceBetAL,refreshAL,dicePredictionAL);
+			} else {
+				loginView.informGeneralLoginError(closeErrorAL);
 			}
 
 			gameView.fillLeaderboard(leaderboardData);
@@ -150,11 +169,15 @@ public class ClientGUI {
 				exception.printStackTrace();
 			}
 
+			RegisterValidationMessage msg = new RegisterValidationMessage();
+
 			try {
-				serverMsg = reader.readLine();
-			} catch (IOException ex) {
-				ex.printStackTrace();
+				msg.readFrom(inputStream);
+			} catch (Exception exception) {
+				exception.printStackTrace();
 			}
+				
+			serverMsg = msg.response;
 
 			if (serverMsg.equals("username already taken")) {
 				loginView.informUsernameAlreadyExists(closeErrorAL);
@@ -209,24 +232,28 @@ public class ClientGUI {
 	private class coinFlipActionListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			try {
-				String bet = gameView.getCoinBettingAmount().getText();
+			String bet = gameView.getCoinBettingAmount().getText();
 
-				if (requestServerCoinFlip(gameView.getPredictedUserResult(), bet)) {
-					serverMsg = reader.readLine();
+			if (requestServerCoinFlip(gameView.getPredictedUserResult(), bet)) {
+				PayoutMessage msg = new PayoutMessage();
 
-					if (!serverMsg.equals("0.0")) {
-						updateUserBalance(Double.parseDouble(serverMsg));
-					} else {
-						updateUserBalance(-Double.parseDouble(bet));
-					}
-
-					System.out.println("Paid out $" + serverMsg);
-					SuccessView.makeResultsPopup(closeSuccessAL,Double.parseDouble(serverMsg),"COIN");
-					gameView.updateFlipStatus();
+				try {
+					msg.readFrom(inputStream);
+				} catch (Exception exception) {
+					exception.printStackTrace();
 				}
-			} catch (IOException ex) {
-				ex.printStackTrace();
+
+				serverMsg = msg.payout;
+
+				if (!serverMsg.equals("0.0")) {
+					updateUserBalance(Double.parseDouble(serverMsg));
+				} else {
+					updateUserBalance(-Double.parseDouble(bet));
+				}
+
+				System.out.println("Paid out $" + serverMsg);
+				SuccessView.makeResultsPopup(closeSuccessAL,Double.parseDouble(serverMsg),"COIN");
+				gameView.updateFlipStatus();
 			}
 		}
 	}
@@ -234,24 +261,28 @@ public class ClientGUI {
 	private class rollDieActionListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			try {
-				String bet = gameView.getDiceBettingAmount().getText();
+			String bet = gameView.getDiceBettingAmount().getText();
 
-				if (requestServerDieRoll(gameView.getDicePrediction().getText(), bet)) {
-					serverMsg = reader.readLine();
-					
-					if (!serverMsg.equals("0.0")) {
-						updateUserBalance(Double.parseDouble(serverMsg));
-					} else {
-						updateUserBalance(-Double.parseDouble(bet));
-					}
+			if (requestServerDieRoll(gameView.getDicePrediction().getText(), bet)) {
+				PayoutMessage msg = new PayoutMessage();
 
-					System.out.println("Paid out $" + serverMsg);
-					SuccessView.makeResultsPopup(closeSuccessAL,Double.parseDouble(serverMsg),"DICE");
-					gameView.updateRollStatus();
+				try {
+					msg.readFrom(inputStream);
+				} catch (Exception exception) {
+					exception.printStackTrace();
 				}
-			} catch (IOException ex) {
-				ex.printStackTrace();
+				
+				serverMsg = msg.payout;
+				
+				if (!serverMsg.equals("0.0")) {
+					updateUserBalance(Double.parseDouble(serverMsg));
+				} else {
+					updateUserBalance(-Double.parseDouble(bet));
+				}
+
+				System.out.println("Paid out $" + serverMsg);
+				SuccessView.makeResultsPopup(closeSuccessAL,Double.parseDouble(serverMsg),"DICE");
+				gameView.updateRollStatus();
 			}
 		}
 	}
@@ -276,13 +307,17 @@ public class ClientGUI {
 				exception.printStackTrace();
 			}
 
+			LeaderboardDataMessage msg = new LeaderboardDataMessage();
+
+			try {
+				msg.readFrom(inputStream);
+			} catch (Exception exception) {
+				exception.printStackTrace();
+			}
+
 			for (int i = 0; i < 3; i++) {
 				for (int j = 0; j < 2; j++) {
-					try {
-						leaderboardData[i][j] = reader.readLine();
-					} catch (IOException ex) {
-						ex.printStackTrace();
-					}
+					leaderboardData[i][j] = msg.data[i * 2 + j];
 				}
 			}
 
@@ -380,11 +415,15 @@ public class ClientGUI {
 				exception.printStackTrace();
 			}
 
+			PasswordChangeValidation msg = new PasswordChangeValidation();
+
 			try {
-				serverMsg = reader.readLine();
-			} catch (IOException ex) {
-				ex.printStackTrace();
+				msg.readFrom(inputStream);
+			} catch (Exception exception) {
+				exception.printStackTrace();
 			}
+
+			serverMsg = msg.response;
 
 			if (serverMsg.equals("password error")) {
 				loginView.informGeneralLoginError(closeErrorAL);
@@ -447,12 +486,16 @@ public class ClientGUI {
 			exception.printStackTrace();
 		}
 
+		client.net.messages.BalanceMessage msg = new client.net.messages.BalanceMessage();
+
 		try {
-			balance = Double.parseDouble(reader.readLine());
-			gameView.updateWallet(balance);
-		} catch (IOException ex) {
-			ex.printStackTrace();
+			msg.readFrom(inputStream);
+		} catch (Exception exception) {
+			exception.printStackTrace();
 		}
+
+		balance = Double.parseDouble(msg.balance);
+		gameView.updateWallet(balance);
 	}
 
 	private void updateUserBalance(double newBalance) {
