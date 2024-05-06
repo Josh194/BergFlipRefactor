@@ -9,5 +9,5 @@ public final class LoginValidationMessage extends Message {
 	public int getID() { return MessageID.LOGIN_RESPONSE.ordinal(); }
 
 	@Serialize
-	public String response;
+	public boolean isValid;
 }

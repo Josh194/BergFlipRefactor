@@ -5,6 +5,7 @@ import java.awt.event.ActionListener;
 import java.io.*;
 import java.net.Socket;
 
+import client.net.messages.BalanceMessage;
 import client.net.messages.LeaderboardDataMessage;
 import client.net.messages.LoginValidationMessage;
 import client.net.messages.PasswordChangeValidation;
@@ -27,7 +28,6 @@ public class ClientGUI {
 	private Socket socket = null;
 	private DataInputStream inputStream = null;
 	private DataOutputStream outputStream = null;
-	private String serverMsg = null;
 	private Boolean validBet = false;
 	private String username;
 	private double balance;
@@ -140,7 +140,7 @@ public class ClientGUI {
 				exception.printStackTrace();
 			}
 
-			if (msg.response.equals("valid user")) {
+			if (msg.isValid) {
 				loginView.closeLogin();
 				loadUserBalance(username);
 				gameView.openGame(flipCoinAL,rollDieAL,logoutAL,headsAL,tailsAL,submitCoinBetAL,submitDiceBetAL,refreshAL,dicePredictionAL);
@@ -159,32 +159,27 @@ public class ClientGUI {
 			String password = loginView.getEnterPassword().getText();
 			System.out.println("Register button was pressed!");
 
+			RegisterValidationMessage response = new RegisterValidationMessage();
+
 			try {
-				RegisterMessage msg = new RegisterMessage();
+				RegisterMessage request = new RegisterMessage();
 
-				msg.username = username;
-				msg.password = password;
+				request.username = username;
+				request.password = password;
 
-				msg.writeTo(outputStream);
+				request.writeTo(outputStream);
 				outputStream.flush();
-			} catch (Exception exception) {
-				exception.printStackTrace();
-			}
 
-			RegisterValidationMessage msg = new RegisterValidationMessage();
-
-			try {
 				Message.readMessageType(inputStream);
-				msg.readFrom(inputStream);
+				response.readFrom(inputStream);
 			} catch (Exception exception) {
 				exception.printStackTrace();
 			}
-				
-			serverMsg = msg.response;
 
-			if (serverMsg.equals("username already taken")) {
+			// TODO: does this need to handle ERROR_CREDENTIAL?
+			if (response.code == RegisterValidationMessage.ResponseType.ERROR_TAKEN.ordinal()) {
 				loginView.informUsernameAlreadyExists(closeErrorAL);
-			} else if (serverMsg.equals("registered user")) {
+			} else if (response.code == RegisterValidationMessage.ResponseType.SUCCESS.ordinal()) {
 				SuccessView.makeSuccessPopup(0,closeSuccessAL);
 				System.out.println("Successfully registered user!");
 			}
@@ -247,16 +242,14 @@ public class ClientGUI {
 					exception.printStackTrace();
 				}
 
-				serverMsg = msg.payout;
-
-				if (!serverMsg.equals("0.0")) {
-					updateUserBalance(Double.parseDouble(serverMsg));
+				if (msg.payout != 0.0) {
+					updateUserBalance(msg.payout);
 				} else {
 					updateUserBalance(-Double.parseDouble(bet));
 				}
 
-				System.out.println("Paid out $" + serverMsg);
-				SuccessView.makeResultsPopup(closeSuccessAL,Double.parseDouble(serverMsg),"COIN");
+				System.out.println("Paid out $" + msg.payout);
+				SuccessView.makeResultsPopup(closeSuccessAL, msg.payout, "COIN");
 				gameView.updateFlipStatus();
 			}
 		}
@@ -277,16 +270,14 @@ public class ClientGUI {
 					exception.printStackTrace();
 				}
 				
-				serverMsg = msg.payout;
-				
-				if (!serverMsg.equals("0.0")) {
-					updateUserBalance(Double.parseDouble(serverMsg));
+				if (msg.payout != 0.0) {
+					updateUserBalance(msg.payout);
 				} else {
 					updateUserBalance(-Double.parseDouble(bet));
 				}
 
-				System.out.println("Paid out $" + serverMsg);
-				SuccessView.makeResultsPopup(closeSuccessAL,Double.parseDouble(serverMsg),"DICE");
+				System.out.println("Paid out $" + msg.payout);
+				SuccessView.makeResultsPopup(closeSuccessAL, msg.payout, "DICE");
 				gameView.updateRollStatus();
 			}
 		}
@@ -408,31 +399,25 @@ public class ClientGUI {
 			String oldPassword = passwordView.getOldPassword().getText();
 			String newPassword = passwordView.getNewPassword().getText();
 
+			PasswordChangeValidation response = new PasswordChangeValidation();
+
 			try {
-				ChangePasswordMessage msg = new ChangePasswordMessage();
+				ChangePasswordMessage request = new ChangePasswordMessage();
 
-				msg.username = username;
-				msg.passwordOld = oldPassword;
-				msg.passwordNew = newPassword;
+				request.username = username;
+				request.passwordOld = oldPassword;
+				request.passwordNew = newPassword;
 
-				msg.writeTo(outputStream);
+				request.writeTo(outputStream);
 				outputStream.flush();
-			} catch (Exception exception) {
-				exception.printStackTrace();
-			}
 
-			PasswordChangeValidation msg = new PasswordChangeValidation();
-
-			try {
 				Message.readMessageType(inputStream);
-				msg.readFrom(inputStream);
+				response.readFrom(inputStream);
 			} catch (Exception exception) {
 				exception.printStackTrace();
 			}
 
-			serverMsg = msg.response;
-
-			if (serverMsg.equals("password error")) {
+			if (!response.success) {
 				loginView.informGeneralLoginError(closeErrorAL);
 			} else {
 				passwordView.closeChangePassword();
@@ -482,27 +467,23 @@ public class ClientGUI {
 	}
 
 	private void loadUserBalance(String username) {
+		BalanceMessage response = new BalanceMessage();
+
 		try {
-			BalanceMessage msg = new BalanceMessage();
+			BalanceRequestMessage request = new BalanceRequestMessage();
 
-			msg.username = username;
+			request.username = username;
 
-			msg.writeTo(outputStream);
+			request.writeTo(outputStream);
 			outputStream.flush();
-		} catch (Exception exception) {
-			exception.printStackTrace();
-		}
 
-		client.net.messages.BalanceMessage msg = new client.net.messages.BalanceMessage();
-
-		try {
 			Message.readMessageType(inputStream);
-			msg.readFrom(inputStream);
+			response.readFrom(inputStream);
 		} catch (Exception exception) {
 			exception.printStackTrace();
 		}
 
-		balance = Double.parseDouble(msg.balance);
+		balance = response.balance;
 		gameView.updateWallet(balance);
 	}
 

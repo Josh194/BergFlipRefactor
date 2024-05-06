@@ -8,6 +8,12 @@ public final class RegisterValidationMessage extends Message {
 	@Override
 	public int getID() { return MessageID.REGISTER_RESPONSE.ordinal(); }
 
+	public enum ResponseType {
+		SUCCESS,
+		ERROR_TAKEN,		// username already taken
+		ERROR_CREDENTIAL	// username/password too short
+	}
+
 	@Serialize
-	public String response;
+	public int code;
 }

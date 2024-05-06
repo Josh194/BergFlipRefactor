@@ -9,5 +9,5 @@ public final class BalanceMessage extends Message {
 	public int getID() { return MessageID.BALANCE.ordinal(); }
 
 	@Serialize
-	public String balance;
+	public double balance;
 }

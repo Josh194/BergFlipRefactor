@@ -9,5 +9,5 @@ public final class PayoutMessage extends Message {
 	public int getID() { return MessageID.PAYOUT.ordinal(); }
 
 	@Serialize
-	public String payout;
+	public double payout;
 }

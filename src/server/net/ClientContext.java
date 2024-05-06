@@ -10,9 +10,13 @@ import java.net.Socket;
 import java.util.Objects;
 import java.util.Random;
 
+import client.net.messages.BalanceMessage;
+import client.net.messages.LoginValidationMessage;
 import client.net.messages.PasswordChangeValidation;
+import client.net.messages.PayoutMessage;
+import client.net.messages.RegisterValidationMessage;
 import server.main.Model;
-import server.net.messages.BalanceMessage;
+import server.net.messages.BalanceRequestMessage;
 import server.net.messages.ChangePasswordMessage;
 import server.net.messages.ExitMessage;
 import server.net.messages.FlipMessage;
@@ -54,7 +58,7 @@ public class ClientContext extends Thread {
 					case MessageID.REGISTER           -> message = new RegisterMessage();
 					case MessageID.CHANGE_PASSWORD    -> message = new ChangePasswordMessage();
 					case MessageID.FLIP               -> message = new FlipMessage();
-					case MessageID.BALANCE            -> message = new BalanceMessage();
+					case MessageID.BALANCE            -> message = new BalanceRequestMessage();
 					case MessageID.UPDATE             -> message = new UpdateMessage();
 					case MessageID.LEADERBOARD        -> message = new LeaderboardMessage();
 					case MessageID.ROLL               -> message = new RollMessage();
@@ -85,9 +89,9 @@ public class ClientContext extends Thread {
 
 	public void balance(String username) {
 		try {
-			client.net.messages.BalanceMessage msg = new client.net.messages.BalanceMessage();
+			BalanceMessage msg = new BalanceMessage();
 
-			msg.balance = Double.toString(model.getBalance(username));
+			msg.balance = model.getBalance(username);
 
 			msg.writeTo(outputStream);
 			outputStream.flush();
@@ -121,9 +125,9 @@ public class ClientContext extends Thread {
 		System.out.println("Payout : " + payout);
 
 		try {
-			client.net.messages.PayoutMessage msg = new client.net.messages.PayoutMessage();
+			PayoutMessage msg = new PayoutMessage();
 
-			msg.payout = Double.toString(payout);
+			msg.payout = payout;
 
 			msg.writeTo(outputStream);
 			outputStream.flush();
@@ -143,9 +147,9 @@ public class ClientContext extends Thread {
 		System.out.println("Payout: " + payout);
 
 		try {
-			client.net.messages.PayoutMessage msg = new client.net.messages.PayoutMessage();
+			PayoutMessage msg = new PayoutMessage();
 
-			msg.payout = Double.toString(payout);
+			msg.payout = payout;
 
 			msg.writeTo(outputStream);
 			outputStream.flush();
@@ -155,14 +159,14 @@ public class ClientContext extends Thread {
 	}
 
 	public void loginUser(String username, String password) {
-		client.net.messages.LoginValidationMessage msg = new client.net.messages.LoginValidationMessage();
+		LoginValidationMessage msg = new LoginValidationMessage();
 
 		if (model.checkLoginCredentials(username, password)) {
 			System.out.println("Logged in user for client " + socket.toString());
-			msg.response = "valid user";
+			msg.isValid = true;
 		} else {
 			System.out.println("Invalid username or password for client " + socket.toString());
-			msg.response = "invalid user";
+			msg.isValid = false;
 		}
 
 		try {
@@ -193,18 +197,18 @@ public class ClientContext extends Thread {
 	}
 
 	public void registerUser(String username, String password) {
-		client.net.messages.RegisterValidationMessage msg = new client.net.messages.RegisterValidationMessage();
+		RegisterValidationMessage msg = new RegisterValidationMessage();
 
 		if (model.doesUserExist(username)) {
 			System.out.println("Username already taken for client " + socket.toString());
-			msg.response = "username already taken";
+			msg.code = RegisterValidationMessage.ResponseType.ERROR_TAKEN.ordinal();
 		} else if (username.length() < 8 || password.length() < 8) {
 			System.out.println("username or password is too short!");
-			msg.response = "credentialError";
+			msg.code = RegisterValidationMessage.ResponseType.ERROR_CREDENTIAL.ordinal();
 		} else {
 			System.out.println("Successfully registered user for client " + socket.toString());
 			model.addUser(username, password);
-			msg.response = "registered user";
+			msg.code = RegisterValidationMessage.ResponseType.SUCCESS.ordinal();
 		}
 
 		try {
@@ -220,10 +224,10 @@ public class ClientContext extends Thread {
 
 		if ((model.checkLoginCredentials(username, oldPassword)) && newPassword.length() > 7) {
 			model.updatePassword(username, newPassword);
-			msg.response = "changed password";
+			msg.success = true;
 			System.out.println("Changed password for client " + socket.toString());
 		} else {
-			msg.response = "password error";
+			msg.success = false;
 		}
 
 		try {

@@ -9,5 +9,5 @@ public final class PasswordChangeValidation extends Message {
 	public int getID() { return MessageID.PASSWORD_CHANGE_RESPONSE.ordinal(); }
 
 	@Serialize
-	public String response;
+	public boolean success;
 }
