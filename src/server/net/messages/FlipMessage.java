@@ -10,11 +10,14 @@ public final class FlipMessage extends ServerMessage {
 
 	@Override
 	public Status handle(ClientContext context) {
-		context.flipCoin(predictedResult, bet);
+		context.flipCoin(predictedHeads, bet);
 
 		return Status.NORMAL;
 	}
 
 	@Serialize
-	public String predictedResult, bet;
+	public boolean predictedHeads;
+	
+	@Serialize
+	public int bet;
 }

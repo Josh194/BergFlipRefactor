@@ -10,11 +10,14 @@ public final class RollMessage extends ServerMessage {
 
 	@Override
 	public Status handle(ClientContext context) {
-		context.rollDie(predictedResult, bet);
+		context.rollDie(predictedRoll, bet);
 
 		return Status.NORMAL;
 	}
 
 	@Serialize
-	public String predictedResult, bet;
+	public int predictedRoll;
+	
+	@Serialize
+	public int bet;
 }

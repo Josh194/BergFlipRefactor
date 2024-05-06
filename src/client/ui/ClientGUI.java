@@ -15,6 +15,7 @@ import server.Server;
 import server.net.messages.*;
 import shared.net.message.Message;
 import shared.net.message.Message.InvalidFieldTypeException;
+import shared.net.message.Message.Serialize;
 import test.message.TestMessage;
 
 public class ClientGUI {
@@ -230,9 +231,16 @@ public class ClientGUI {
 	private class coinFlipActionListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String bet = gameView.getCoinBettingAmount().getText();
+			int bet = Integer.parseInt(gameView.getCoinBettingAmount().getText());
 
-			if (requestServerCoinFlip(gameView.getPredictedUserResult(), bet)) {
+			int prediction = gameView.getPredictedUserResult();
+
+			if (prediction == -1) {
+				gameView.informNoPrediction(closeErrorAL);
+				return;
+			}
+
+			if (requestServerCoinFlip(prediction == 1, bet)) {
 				PayoutMessage msg = new PayoutMessage();
 
 				try {
@@ -245,7 +253,7 @@ public class ClientGUI {
 				if (msg.payout != 0.0) {
 					updateUserBalance(msg.payout);
 				} else {
-					updateUserBalance(-Double.parseDouble(bet));
+					updateUserBalance((double) -bet);
 				}
 
 				System.out.println("Paid out $" + msg.payout);
@@ -258,9 +266,16 @@ public class ClientGUI {
 	private class rollDieActionListener implements ActionListener {
 		@Override
 		public void actionPerformed(ActionEvent e) {
-			String bet = gameView.getDiceBettingAmount().getText();
+			int bet = Integer.parseInt(gameView.getDiceBettingAmount().getText());
 
-			if (requestServerDieRoll(gameView.getDicePrediction().getText(), bet)) {
+			String prediction = gameView.getDicePrediction().getText();
+
+			if (prediction == null) {
+				gameView.informNoPrediction(closeErrorAL);
+				return;
+			}
+
+			if (requestServerDieRoll(Integer.parseInt(prediction), bet)) {
 				PayoutMessage msg = new PayoutMessage();
 
 				try {
@@ -273,7 +288,7 @@ public class ClientGUI {
 				if (msg.payout != 0.0) {
 					updateUserBalance(msg.payout);
 				} else {
-					updateUserBalance(-Double.parseDouble(bet));
+					updateUserBalance((double) -bet);
 				}
 
 				System.out.println("Paid out $" + msg.payout);
@@ -435,35 +450,32 @@ public class ClientGUI {
 		}
 	}
 
-	private boolean requestServerCoinFlip(String predictedResult, String bet) {
-		if (predictedResult == null) {
-			gameView.informNoPrediction(closeErrorAL);
-
+	private boolean requestServerCoinFlip(boolean predictedHeads, int bet) {
+		if(!validBet) {
 			return false;
-		} else if(!validBet) {
+		}
+
+		double tempBet = bet;
+
+		if (!(tempBet > 0 & tempBet <= GameView.getWallet()) || (tempBet < 1)) {
+			System.out.println("Invalid bet!");
+
 			return false;
 		} else {
-			double tempBet = Double.parseDouble(bet);
-			if ( !(tempBet > 0 & tempBet <= GameView.getWallet()) || (tempBet < 1) ) {
-				System.out.println("Invalid bet!");
+			try {
+				FlipMessage msg = new FlipMessage();
 
-				return false;
-			} else {
-				try {
-					FlipMessage msg = new FlipMessage();
-	
-					msg.predictedResult = predictedResult;
-					msg.bet = bet;
-	
-					msg.writeTo(outputStream);
-					outputStream.flush();
-				} catch (Exception exception) {
-					exception.printStackTrace();
-				}
+				msg.predictedHeads = predictedHeads;
+				msg.bet = bet;
+
+				msg.writeTo(outputStream);
+				outputStream.flush();
+			} catch (Exception exception) {
+				exception.printStackTrace();
 			}
-
-			return true;
 		}
+
+		return true;
 	}
 
 	private void loadUserBalance(String username) {
@@ -505,27 +517,23 @@ public class ClientGUI {
 		gameView.updateWallet(balance);
 	}
 
-	private boolean requestServerDieRoll(String predictedResult, String bet) {
-		if (predictedResult == null) {
-			gameView.informNoPrediction(closeErrorAL);
-
+	private boolean requestServerDieRoll(int predictedRoll, int bet) {
+		if(!validBet) {
 			return false;
-		} else if(!validBet) {
-			return false;
-		} else {
-			try {
-				RollMessage msg = new RollMessage();
-
-				msg.predictedResult = predictedResult;
-				msg.bet = bet;
-
-				msg.writeTo(outputStream);
-				outputStream.flush();
-			} catch (Exception exception) {
-				exception.printStackTrace();
-			}
-
-			return true;
 		}
+
+		try {
+			RollMessage msg = new RollMessage();
+
+			msg.predictedRoll = predictedRoll;
+			msg.bet = bet;
+
+			msg.writeTo(outputStream);
+			outputStream.flush();
+		} catch (Exception exception) {
+			exception.printStackTrace();
+		}
+
+		return true;
 	}
 }

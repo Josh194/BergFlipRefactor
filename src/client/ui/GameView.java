@@ -21,11 +21,11 @@ public class GameView {
 	private final JLabel playerBalCoin = new JLabel();
 	private final JLabel playerBalDice = new JLabel();
 
-	private String predictedUserResult;
+	private int predictedUserHeads = -1; // -1: invalid, 0: false, 1: true
 	private static double wallet = 0;
 
-	public String getPredictedUserResult() {
-		return predictedUserResult;
+	public int getPredictedUserResult() {
+		return predictedUserHeads;
 	}
 
 	public JTextField getDicePrediction() {
@@ -45,11 +45,11 @@ public class GameView {
 	}
 
 	public void updatePredictedUserResult(boolean heads) {
+		predictedUserHeads = (heads ? 1 : 0);
+
 		if (heads) {
-			predictedUserResult = "HEADS";
 			headsOrTails.setText("Predicted Result: HEADS");
 		} else {
-			predictedUserResult = "TAILS";
 			headsOrTails.setText("Predicted Result: TAILS");
 		}
 	}

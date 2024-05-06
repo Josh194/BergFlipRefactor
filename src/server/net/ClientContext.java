@@ -109,17 +109,11 @@ public class ClientContext extends Thread {
 		}
 	}
 
-	public void flipCoin(String predictedResult, String bet) {
+	public void flipCoin(boolean predictedHeads, int bet) {
 		double payout = 0.0;
 
-		if (rand.nextBoolean()) {
-			if ((Objects.equals(predictedResult, "HEADS"))) {
-				payout = (Integer.parseInt(bet) * 0.5);
-			}
-		} else {
-			if ((Objects.equals(predictedResult, "TAILS"))) {
-				payout = (Integer.parseInt(bet) * 0.5);
-			}
+		if (rand.nextBoolean() == predictedHeads) {
+			payout = (bet * 0.5);
 		}
 
 		System.out.println("Payout : " + payout);
@@ -136,12 +130,12 @@ public class ClientContext extends Thread {
 		}
 	}
 
-	public void rollDie(String predictedResult, String bet) {
+	public void rollDie(int predictedRoll, int bet) {
 		double payout = 0.0;
 		int roll = 1 + rand.nextInt(6);
 
-		if (roll == Integer.parseInt(predictedResult)) {
-			payout = Integer.parseInt(bet) * 2;
+		if (roll == predictedRoll) {
+			payout = bet * 2;
 		}
 
 		System.out.println("Payout: " + payout);
