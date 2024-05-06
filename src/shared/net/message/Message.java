@@ -200,7 +200,7 @@ public abstract class Message {
 			}
 
 			for (BufferedField field : strings) {
-				// ! TODO: genericize this to other array types
+				// ! TODO: genericize this to other variable-length types
 				// ! TODO: does this String constructor interpret the read bytes the same way they were written?
 				field.set(this, new String(inputStream.readNBytes(field.length)));
 			}
