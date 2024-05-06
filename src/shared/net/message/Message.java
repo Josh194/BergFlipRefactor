@@ -11,7 +11,14 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 
 // TODO: support serialization of nested classes
+// TODO: document serialized data format
 // * abstract to prevent instantiation (as should never be necessary), but could be easily removed in the future if needed
+/**
+ * Base class for serializable messages. Also provides functions for serialization and deserialization.
+ * <p>
+ * Unless overridden, serialization and deserialization methods are generated automatically for {@code Message} types.
+ * Subclasses must declare a unique ID, and mark any field they wish to be serialized as {@code @Serialize}.
+ */
 public abstract class Message {
 	class InvalidFieldTypeException extends Exception {}
 
@@ -21,6 +28,15 @@ public abstract class Message {
 
 	// TODO: do field processing at compile-time; ideally, generate unique functions for each `Message` child for performance
 	// TODO: should probably try to generalize at least *some* of this logic in the future for reuse in `readFrom()`
+	/**
+	 * Serializes this {@code Message} instance and writes it into a stream.
+	 * 
+	 * @param outputStream the stream to write into
+	 * @throws IOException if writing to the provided stream causes an {@code IOException}
+	 * @throws InvalidFieldTypeException if a field in the calling {@code Message} class was marked as {@code @Serialize}, but is not of a supported type
+	 * 
+	 * @see #readFrom
+	 */
 	public void writeTo(DataOutputStream outputStream) throws IOException, InvalidFieldTypeException {
 		outputStream.writeInt(getID());
 
@@ -82,10 +98,42 @@ public abstract class Message {
 		public int length;
 	}
 
-	// * all comments from `writeTo()` apply here
-	public void readFrom(DataInputStream inputStream) throws IOException, InvalidFieldTypeException {
-		int id = inputStream.readInt();
+	/**
+	 * Reads the type ID of the next message in the stream.
+	 * Note that as this actually consumes the data, you *cannot* call this method multiple times in a row (unless the message type the previous call to this function returned had a size of zero).
+	 * In other words, excluding the aforementioned exception, calls to {@link #readMessageType} and {@link #readFrom} must always be paired.
+	 * <p>
+	 * A message is only considered valid if the type of the {@code Message} instance used to read and write it is the same.
+	 * Information about how message IDs correspond to {@code Message} subclasses must be communicated out-of-band at the programmer's discretion.
+	 * <p>
+	 * Only the bytes completely necessary for the message are read.
+	 * This method assumes the input stream is blocking, and may otherwise throw an exception if not enough bytes are available.
+	 * 
+	 * @param inputStream the stream to read from
+	 * @return the ID of the next message in the stream
+	 * @throws IOException if reading from the provided stream causes an {@code IOException}
+	 * 
+	 * @see #readFrom
+	 */
+	public static int readMessageType(DataInputStream inputStream) throws IOException {
+		return inputStream.readInt();
+	}
 
+	// * all comments from `writeTo()` apply here
+	/**
+	 * Reads and deserializes a single message from the provided stream into this {@code Message} instance. Must have been preceded by a call to {@link #readMessageType}.
+	 * <p>
+	 * Only the bytes completely necessary for the message are read.
+	 * This method assumes the input stream is blocking, and may otherwise throw an exception if not enough bytes are available.
+	 * 
+	 * @param inputStream the stream to read from
+	 * @throws IOException if reading from the provided stream causes an {@code IOException}
+	 * @throws InvalidFieldTypeException if a field in the calling {@code Message} class was marked as {@code @Serialize}, but is not of a supported type
+	 * 
+	 * @see #readMessageType
+	 * @see #writeTo
+	 */
+	public void readFrom(DataInputStream inputStream) throws IOException, InvalidFieldTypeException {
 		ArrayList<BufferedField> strings = new ArrayList<BufferedField>();
 
 		try {
@@ -132,5 +180,10 @@ public abstract class Message {
 	// TODO: is there a better to do this? quick research would suggest no, but the functionality clearly exists (serialVersionUID) though may be limited to the STL.
 	// TODO: maybe just compile-time reflection? because as is, this is incredibly lame.
 	// if the above is possible, could possibly be worth allowing IDs to be set in an enum definition.
+	/**
+	 * Returns the ID assigned to this {@code Message} type. Subclasses must coordinate to ensure unique IDs.
+	 * 
+	 * @return the message type ID
+	 */
 	public abstract int getID();
 }

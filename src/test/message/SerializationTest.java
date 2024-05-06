@@ -8,6 +8,8 @@ import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 
+import shared.net.message.Message;
+
 public class SerializationTest {
 	public static void main(String[] args) {
 		TestMessage reference = new TestMessage();
@@ -43,12 +45,14 @@ public class SerializationTest {
 
 		System.out.println("========");
 
+		int messageId = -1;
 		TestMessage message = new TestMessage();
 
 		{
 			DataInputStream is = new DataInputStream(new ByteArrayInputStream(writeStream.toByteArray()));
 
 			try {
+				messageId = Message.readMessageType(is);
 				message.readFrom(is);
 			} catch (Exception e) {
 				e.printStackTrace();
@@ -57,6 +61,7 @@ public class SerializationTest {
 
 		AssertionBuilder tester = new AssertionBuilder("message field failed verification");
 
+		tester.testEq(messageId, TestMessage.ID); // TODO: should probably improve the assertion system so this isn't just reusing the field checker (in a better manner than just defining a new instance)
 		tester.testEq(reference.testBool, message.testBool);
 		tester.testEq(reference.testString, message.testString);
 		tester.testEq(reference.testInt1, message.testInt1);
