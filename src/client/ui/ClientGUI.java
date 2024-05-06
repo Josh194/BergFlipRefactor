@@ -96,6 +96,7 @@ public class ClientGUI {
 			LeaderboardDataMessage msg = new LeaderboardDataMessage();
 
 			try {
+				Message.readMessageType(inputStream);
 				msg.readFrom(inputStream);
 			} catch (Exception exception) {
 				exception.printStackTrace();
@@ -133,6 +134,7 @@ public class ClientGUI {
 			LoginValidationMessage msg = new LoginValidationMessage();
 
 			try {
+				Message.readMessageType(inputStream);
 				msg.readFrom(inputStream);
 			} catch (Exception exception) {
 				exception.printStackTrace();
@@ -172,6 +174,7 @@ public class ClientGUI {
 			RegisterValidationMessage msg = new RegisterValidationMessage();
 
 			try {
+				Message.readMessageType(inputStream);
 				msg.readFrom(inputStream);
 			} catch (Exception exception) {
 				exception.printStackTrace();
@@ -238,6 +241,7 @@ public class ClientGUI {
 				PayoutMessage msg = new PayoutMessage();
 
 				try {
+					Message.readMessageType(inputStream);
 					msg.readFrom(inputStream);
 				} catch (Exception exception) {
 					exception.printStackTrace();
@@ -267,6 +271,7 @@ public class ClientGUI {
 				PayoutMessage msg = new PayoutMessage();
 
 				try {
+					Message.readMessageType(inputStream);
 					msg.readFrom(inputStream);
 				} catch (Exception exception) {
 					exception.printStackTrace();
@@ -310,6 +315,7 @@ public class ClientGUI {
 			LeaderboardDataMessage msg = new LeaderboardDataMessage();
 
 			try {
+				Message.readMessageType(inputStream);
 				msg.readFrom(inputStream);
 			} catch (Exception exception) {
 				exception.printStackTrace();
@@ -418,6 +424,7 @@ public class ClientGUI {
 			PasswordChangeValidation msg = new PasswordChangeValidation();
 
 			try {
+				Message.readMessageType(inputStream);
 				msg.readFrom(inputStream);
 			} catch (Exception exception) {
 				exception.printStackTrace();
@@ -489,6 +496,7 @@ public class ClientGUI {
 		client.net.messages.BalanceMessage msg = new client.net.messages.BalanceMessage();
 
 		try {
+			Message.readMessageType(inputStream);
 			msg.readFrom(inputStream);
 		} catch (Exception exception) {
 			exception.printStackTrace();
