@@ -7,6 +7,7 @@ import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.util.Arrays;
 
 import shared.net.message.Message;
 
@@ -17,6 +18,8 @@ public class SerializationTest {
 		reference.testBool = true;
 		reference.testString = "hello\nworld";
 		reference.testInt1 = 5;
+		reference.testStringArray = new String[] {"hi", "how", "are", "you?"};
+		reference.testIntArray = new int[] {2, 3, 4};
 		reference.testInt2 = 2048;
 
 		ByteArrayOutputStream writeStream = new ByteArrayOutputStream();
@@ -69,6 +72,8 @@ public class SerializationTest {
 		tester.testEq(reference.testBool, message.testBool);
 		tester.testEq(reference.testString, message.testString);
 		tester.testEq(reference.testInt1, message.testInt1);
+		tester.testEq(Arrays.equals(reference.testStringArray, message.testStringArray), true);
+		tester.testEq(Arrays.equals(reference.testIntArray, message.testIntArray), true);
 		tester.testEq(reference.testInt2, message.testInt2);
 
 		if (tester.getNumFailures() == 0) {

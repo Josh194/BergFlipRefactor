@@ -3,9 +3,12 @@ package shared.net.message;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
 import java.io.IOException;
+import java.lang.reflect.Array;
 import java.lang.reflect.Field;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.lang.annotation.Target;
+import java.lang.annotation.Annotation;
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -23,7 +26,9 @@ public abstract class Message {
 
 	@Target(ElementType.FIELD) // TODO: check that this is correct
 	@Retention(RetentionPolicy.RUNTIME) // TODO: is there a way to avoid this requirement (ie a templated base function?)
-	public @interface Serialize {}
+	public @interface Serialize {
+		int length() default 0; // fixed size length required for arrays
+	}
 
 	// TODO: do field processing at compile-time; ideally, generate unique functions for each `Message` child for performance
 	// TODO: should probably try to generalize at least *some* of this logic in the future for reuse in `readFrom()`
@@ -50,30 +55,7 @@ public abstract class Message {
 						continue;
 					}
 
-					// TODO: this sucks; surely there's a better way?
-					// TODO: is this portable?
-					switch (field.get(this)) { // ? how does field.get() perform for primitives?
-					case Integer value: {
-						outputStream.writeInt(value);
-						break;
-					}
-					case Short value: {
-						outputStream.writeShort(value);
-						break;
-					}
-					case Boolean value: {
-						outputStream.writeBoolean(value);
-						break;
-					}
-					case String value: {
-						outputStream.writeInt(value.length());
-						strings.add(value);
-						break;
-					}
-					default: {
-						throw new InvalidFieldTypeException();
-					}
-					}
+					writeObjectTo(field.get(this), outputStream, strings);
 				}
 			}
 		} catch (IllegalAccessException e) {
@@ -86,14 +68,77 @@ public abstract class Message {
 		}
 	}
 
+	// TODO: improve the interface of this (maybe hold some data in the class instance, or move the logic to a designated input/output stream class)
+	private void writeObjectTo(Object obj, DataOutputStream outputStream, ArrayList<String> strings) throws IOException, InvalidFieldTypeException {
+		// TODO: this sucks; surely there's a better way?
+		// TODO: is this portable?
+		switch (obj) { // ? how does field.get() perform for primitives?
+		case Integer value: {
+			outputStream.writeInt(value);
+			break;
+		}
+		case Short value: {
+			outputStream.writeShort(value);
+			break;
+		}
+		case Boolean value: {
+			outputStream.writeBoolean(value);
+			break;
+		}
+		case String value: {
+			outputStream.writeInt(value.length());
+			strings.add(value);
+			break;
+		}
+		default: {
+			// TODO: see if we can get this into a matched pattern
+			if (obj.getClass().isArray()) {
+				for (int i = 0; i < Array.getLength(obj); i++) {
+					writeObjectTo(Array.get(obj, i), outputStream, strings);
+				}
+
+				break;
+			}
+			
+			//System.out.println("\n\n---\n" + obj.getClass().getTypeName() + "\n---\n\n");
+
+			throw new InvalidFieldTypeException();
+		}
+		}
+	}
+
 	// TODO: maybe see if this can be eliminated
 	private class BufferedField {
-		public BufferedField(Field field, int length) {
+		public BufferedField(Field field) {
 			this.field = field;
-			this.length = length;
+		}
+
+		public BufferedField(Object array, int arrayIndex) {
+			field = null; // is this actually necessary?
+			this.array = array;
+			this.arrayIndex = arrayIndex;
+		}
+
+		Class<?> getType() {
+			return (field != null) ? field.getType() : array.getClass().getComponentType();
+		}
+
+		<T extends Annotation> T getAnnotation(Class<T> annotationClass) {
+			// TODO: need to check this against nested arrays
+			return (field != null) ? field.getAnnotation(annotationClass) : array.getClass().getAnnotation(annotationClass);
+		}
+
+		void set(Object obj, Object value) throws IllegalAccessException {
+			if (field != null) {
+				field.set(obj, value);
+			} else {
+				Array.set(array, arrayIndex, value);
+			}
 		}
 
 		public Field field;
+		private Object array; // TODO: messy (only necessary for arrays), feels like a silly hack; surely there's a better way
+		public int arrayIndex;
 		public int length;
 	}
 
@@ -142,37 +187,64 @@ public abstract class Message {
 						continue;
 					}
 
-					// TODO: specifying the switch patterns like this also kind of sucks, is there a better way?
-					switch (field.getType()) {
-					case Class<?> cl when (cl == Integer.class) || (cl == int.class): {
-						field.setInt(this, inputStream.readInt());
-						break;
-					}
-					case Class<?> cl when (cl == Short.class) || (cl == short.class): {
-						field.setShort(this, inputStream.readShort());
-						break;
-					}
-					case Class<?> cl when (cl == Boolean.class) || (cl == boolean.class): {
-						field.setBoolean(this, inputStream.readBoolean());
-						break;
-					}
-					case Class<?> cl when (cl == String.class): {
-						strings.add(new BufferedField(field, inputStream.readInt()));
-						break;
-					}
-					default: {
-						throw new InvalidFieldTypeException();
-					}
-					}
+					readObjectFrom(new BufferedField(field), inputStream, strings);
 				}
 			}
 
 			for (BufferedField field : strings) {
+				// ! TODO: genericize this to other array types
 				// ! TODO: does this String constructor interpret the read bytes the same way they were written?
-				field.field.set(this, new String(inputStream.readNBytes(field.length)));
+				field.set(this, new String(inputStream.readNBytes(field.length)));
 			}
 		} catch (IllegalAccessException e) {
 			e.printStackTrace();
+		}
+	}
+
+	// TODO: god please fix this stupid array system
+	private void readObjectFrom(BufferedField field, DataInputStream inputStream, ArrayList<BufferedField> strings) throws IOException, IllegalAccessException, InvalidFieldTypeException {
+		// TODO: specifying the switch patterns like this also kind of sucks, is there a better way?
+		switch (field.getType()) {
+		case Class<?> cl when (cl == Integer.class) || (cl == int.class): {
+			field.set(this, inputStream.readInt());
+			break;
+		}
+		case Class<?> cl when (cl == Short.class) || (cl == short.class): {
+			field.set(this, inputStream.readShort());
+			break;
+		}
+		case Class<?> cl when (cl == Boolean.class) || (cl == boolean.class): {
+			field.set(this, inputStream.readBoolean());
+			break;
+		}
+		case Class<?> cl when (cl == String.class): {
+			field.length = inputStream.readInt();
+			strings.add(field);
+			break;
+		}
+		case Class<?> cl when (cl.isArray()): {
+			Class<?> arrayType = field.getType();
+			
+			// TODO: could clean up
+			if (field.getAnnotation(Serialize.class) == null) {
+				throw new InvalidFieldTypeException(); // ? should we throw something different?
+			}
+
+			int arrayLength = field.getAnnotation(Serialize.class).length();
+			// ! TODO: why does this work? (the getComponentType() call)
+			Object array = Array.newInstance(arrayType.getComponentType(), arrayLength);
+
+			field.set(this, array);
+
+			for (int i = 0; i < arrayLength; i++) {
+				readObjectFrom(new BufferedField(array, i), inputStream, strings);
+			}
+
+			break;
+		}
+		default: {
+			throw new InvalidFieldTypeException();
+		}
 		}
 	}
 
