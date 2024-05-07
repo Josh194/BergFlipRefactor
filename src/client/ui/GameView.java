@@ -46,31 +46,19 @@ public class GameView {
 		return wallet;
 	}
 
+	static final String coinStrings[] = new String[] {"TAILS", "HEADS"}; // ? will this be constantly reinitialized if placed in `updatePredictedUserResult()` without the `static` modifier?
+
 	public void updatePredictedUserResult(boolean heads) {
 		predictedUserHeads = (heads ? 1 : 0);
 
-		if (heads) {
-			headsOrTails.setText("Predicted Result: HEADS");
-		} else {
-			headsOrTails.setText("Predicted Result: TAILS");
-		}
+		headsOrTails.setText("Predicted Result: " + coinStrings[predictedUserHeads]);
 	}
 
+	static final char diceStrings[] = new char[] {'1', '2', '3', '4', '5', '6'}; // not really necessary, but at least stops constant re-initialization
+
 	public void updateDicePredictedResult(int side) {
-		switch (side) {
-			case 1: diceResult.setText("Predicted Result: 1");
-					break;
-			case 2: diceResult.setText("Predicted Result: 2");
-					break;
-			case 3: diceResult.setText("Predicted Result: 3");
-					break;
-			case 4: diceResult.setText("Predicted Result: 4");
-					break;
-			case 5: diceResult.setText("Predicted Result: 5");
-					break;
-			case 6: diceResult.setText("Predicted Result: 6");
-					break;
-		}
+		// only call-site guarantees `side` is in range, but may be worth considering checking more locally for increased safety
+		diceResult.setText("Predicted Result: " + diceStrings[side - 1]);
 	}
 
 	public void updateCoinBet() {
