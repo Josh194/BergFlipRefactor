@@ -10,66 +10,62 @@ public class ErrorView {
     private static JLabel errorMessage1;
     private static JLabel errorMessage2;
 
-    public static void makeErrorPopup(int error, ActionListener closeAL) {
-	System.out.println("Creating Error Message Popup...");
-	errorFrame = new JFrame("An Error Occurred");
-	errorFrame.setLayout(new GridLayout(3,1));
+	public enum ErrorPair {
+		USERNAME_EXISTS		("Username provided already exists.",				"This Username is already taken. Try a different username."),
+		USERNAME_INVALID	("New Username is invalid.",						"Username must be at least 8 characters."),
+		PASSWORD_INVALID	("New Password is invalid.",						"Password must be at least 8 characters."),
+		USERNAME_NOT_FOUND	("Username provided does not exist.",				"Make sure you typed in the correct Username."),
+		WRONG_PASSWORD		("Incorrect Password.",							"Make sure you typed in the Password correctly."),
+		NEGATIVE_BET		("Amount to bet is invalid.",						"Your bet must be greater than 0."),
+		BET_EXCESSIVE		("Amount to bet is invalid.",						"Your bet is greater than your current balance: "),
+		BET_FORMAT			("Amount to bet is invalid.",						"Your bet must be a number. Please avoid using letters."),
+		NO_PREDICTION		("No prediction was submitted.",					"Please submit a prediction before playing the game."),
+		NO_BET				("No bet was submitted.",							"Please submit a bet before playing the game."),
+		INVALID_CREDENTIALS	("Username or Password incorrect or invalid.",	"Make sure credentials are typed correctly."),
+		INVALID_ROLL		("Prediction was invalid.",						"Choose a side 1 through 6 to predict.");
 
-	switch (error) {
-	    case 0: errorMessage1 = new JLabel("Username provided already exists.");
-		    errorMessage2 = new JLabel("This Username is already taken. Try a different username.");
-		    break;
-	    case 1: errorMessage1 = new JLabel("New Username is invalid.");
-		    errorMessage2 = new JLabel("Username must be at least 8 characters.");
-		    break;
-	    case 2: errorMessage1 = new JLabel("New Password is invalid.");
-		    errorMessage2 = new JLabel("Password must be at least 8 characters.");
-		    break;
-	    case 3: errorMessage1 = new JLabel("Username provided does not exist.");
-		    errorMessage2 = new JLabel("Make sure you typed in the correct Username.");
-		    break;
-	    case 4: errorMessage1 = new JLabel("Incorrect Password.");
-		    errorMessage2 = new JLabel("Make sure you typed in the Password correctly.");
-		    break;
-	    case 5: errorMessage1 = new JLabel("Amount to bet is invalid.");
-		    errorMessage2 = new JLabel("Your bet must be greater than 0.");
-		    break;
-	    case 6: errorMessage1 = new JLabel("Amount to bet is invalid.");
-		    errorMessage2 = new JLabel("Your bet less than your current balance: " + GameView.getWallet() + ".");
-		    break;
-	    case 7: errorMessage1 = new JLabel("Amount to bet is invalid.");
-		    errorMessage2 = new JLabel("Your bet must be a number. Please avoid using letters.");
-		    break;
-	    case 8: errorMessage1 = new JLabel("No prediction was submitted.");
-		    errorMessage2 = new JLabel("Please submit a prediction before playing the game.");
-		    break;
-	    case 9: errorMessage1 = new JLabel("No bet was submitted.");
-		    errorMessage2 = new JLabel("Please submit a bet before playing the game.");
-		    break;
-	    case 10: errorMessage1 = new JLabel("Username or Password incorrect or invalid.");
-		     errorMessage2 = new JLabel("Make sure credentials are typed correctly.");
-		     break;
-	    case 11: errorMessage1 = new JLabel("Prediction was invalid.");
-		     errorMessage2 = new JLabel("Choose a side 1 through 6 to predict.");
-		     break;
+		private ErrorPair(String error, String hint) {
+			this.error = error;
+			this.hint = hint;
+		}
+
+		public final String error, hint;
 	}
 
-	errorMessage1.setHorizontalAlignment(JLabel.CENTER);
-	errorMessage2.setHorizontalAlignment(JLabel.CENTER);
+    public static void makeErrorPopup(ErrorPair error, ActionListener closeAL) {
+		System.out.println("Creating Error Message Popup...");
+		errorFrame = new JFrame("An Error Occurred");
+		errorFrame.setLayout(new GridLayout(3,1));
 
-	JButton closeErrorButton = new JButton("Close");
-	closeErrorButton.addActionListener(closeAL);
+		switch (error) {
+		case BET_EXCESSIVE: {
+			errorMessage1 = new JLabel(error.error);
+			errorMessage2 = new JLabel(error.hint + GameView.getWallet() + ".");
+			break;
+		}
+		default: {
+			errorMessage1 = new JLabel(error.error);
+			errorMessage2 = new JLabel(error.hint);
+			break;
+		}
+		}
 
-	errorFrame.add(errorMessage1);
-	errorFrame.add(errorMessage2);
-	errorFrame.add(closeErrorButton);
+		errorMessage1.setHorizontalAlignment(JLabel.CENTER);
+		errorMessage2.setHorizontalAlignment(JLabel.CENTER);
 
-	errorFrame.setSize(400,150);
-	errorFrame.setVisible(true);
+		JButton closeErrorButton = new JButton("Close");
+		closeErrorButton.addActionListener(closeAL);
+
+		errorFrame.add(errorMessage1);
+		errorFrame.add(errorMessage2);
+		errorFrame.add(closeErrorButton);
+
+		errorFrame.setSize(400,150);
+		errorFrame.setVisible(true);
     }
 
     public static void closeErrorPopup() {
-	System.out.println("Closing Error Message Popup...");
-	errorFrame.setVisible(false);
+		System.out.println("Closing Error Message Popup...");
+		errorFrame.setVisible(false);
     }
 }

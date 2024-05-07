@@ -2,6 +2,8 @@ package client.ui;
 
 import javax.swing.*;
 
+import client.ui.ErrorView.ErrorPair;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 
@@ -65,10 +67,10 @@ public class LoginView {
 
 	public void informUsernameAlreadyExists(ActionListener closeAL) {
 		enterUsername.setBorder(BorderFactory.createLineBorder(Color.red));
-		ErrorView.makeErrorPopup(0,closeAL);
+		ErrorView.makeErrorPopup(ErrorPair.USERNAME_EXISTS, closeAL);
 	}
 
 	public void informGeneralLoginError(ActionListener closeAL) {
-		ErrorView.makeErrorPopup(10,closeAL);
+		ErrorView.makeErrorPopup(ErrorPair.INVALID_CREDENTIALS, closeAL);
 	}
 }

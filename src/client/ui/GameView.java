@@ -2,6 +2,8 @@ package client.ui;
 
 import javax.swing.*;
 
+import client.ui.ErrorView.ErrorPair;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 
@@ -96,19 +98,19 @@ public class GameView {
 	}
 
 	public void informInvalidBetNonpositive(ActionListener closeAL) {
-		ErrorView.makeErrorPopup(5,closeAL);
+		ErrorView.makeErrorPopup(ErrorPair.NEGATIVE_BET, closeAL);
 	}
 
 	public void informInvalidBetTooLarge(ActionListener closeAL) {
-		ErrorView.makeErrorPopup(6,closeAL);
+		ErrorView.makeErrorPopup(ErrorPair.BET_EXCESSIVE, closeAL);
 	}
 
 	public void informInvalidBetNotNumber(ActionListener closeAL) {
-		ErrorView.makeErrorPopup(7,closeAL);
+		ErrorView.makeErrorPopup(ErrorPair.BET_FORMAT, closeAL);
 	}
 
 	public void informNoPrediction(ActionListener closeAL) {
-		ErrorView.makeErrorPopup(8,closeAL);
+		ErrorView.makeErrorPopup(ErrorPair.NO_PREDICTION, closeAL);
 	}
 
 	public void fillLeaderboard(String[][] leaderboardData) {

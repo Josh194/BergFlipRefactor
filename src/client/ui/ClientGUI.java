@@ -11,6 +11,7 @@ import client.net.messages.LoginValidationMessage;
 import client.net.messages.PasswordChangeValidation;
 import client.net.messages.PayoutMessage;
 import client.net.messages.RegisterValidationMessage;
+import client.ui.ErrorView.ErrorPair;
 import server.Server;
 import server.net.messages.*;
 import shared.net.message.Message;
@@ -358,7 +359,7 @@ public class ClientGUI {
 			int userDicePrediction = Integer.parseInt(gameView.getDicePrediction().getText());
 
 			if(userDicePrediction < 1 || userDicePrediction > 6) {
-				ErrorView.makeErrorPopup(11,closeErrorAL);
+				ErrorView.makeErrorPopup(ErrorPair.INVALID_ROLL, closeErrorAL);
 			} else {
 				gameView.updateDicePredictedResult(userDicePrediction);
 			}
