@@ -10,10 +10,10 @@ public class SuccessView {
 	private static JLabel successMessage2;
 
 	public enum SuccessPair {
-		ACCOUNT_REGISTERED	("Account registered successfully!",	"You can now login with your new account."),
-		PASSWORD_CHANGED	("Changed password successfully!",		"You can now login using your new password."),
-		BET_WIN				("You won!",							"Your bet was paid out!"),
-		BET_LOSE			("You lost!",							"Luck was not on your side and you lost your bet.");
+		ACCOUNT_REGISTERED ("Account registered successfully!", "You can now login with your new account."),
+		PASSWORD_CHANGED   ("Changed password successfully!",   "You can now login using your new password."),
+		BET_WIN            ("You won!",                         "Your bet was paid out!"),
+		BET_LOSE           ("You lost!",                        "Luck was not on your side and you lost your bet.");
 
 		private SuccessPair(String message, String description) {
 			this.message = message;
