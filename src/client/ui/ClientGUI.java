@@ -12,12 +12,11 @@ import client.net.messages.PasswordChangeValidation;
 import client.net.messages.PayoutMessage;
 import client.net.messages.RegisterValidationMessage;
 import client.ui.ErrorView.ErrorPair;
+import client.ui.SuccessView.SuccessPair;
 import server.Server;
 import server.net.messages.*;
 import shared.net.message.Message;
 import shared.net.message.Message.InvalidFieldTypeException;
-import shared.net.message.Message.Serialize;
-import test.message.TestMessage;
 
 public class ClientGUI {
 	private final LoginView loginView;
@@ -182,7 +181,7 @@ public class ClientGUI {
 			if (response.code == RegisterValidationMessage.ResponseType.ERROR_TAKEN.ordinal()) {
 				loginView.informUsernameAlreadyExists(closeErrorAL);
 			} else if (response.code == RegisterValidationMessage.ResponseType.SUCCESS.ordinal()) {
-				SuccessView.makeSuccessPopup(0,closeSuccessAL);
+				SuccessView.makeSuccessPopup(SuccessPair.ACCOUNT_REGISTERED, closeSuccessAL);
 				System.out.println("Successfully registered user!");
 			}
 		}
@@ -438,7 +437,7 @@ public class ClientGUI {
 			} else {
 				passwordView.closeChangePassword();
 				loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
-				SuccessView.makeSuccessPopup(1,closeSuccessAL);
+				SuccessView.makeSuccessPopup(SuccessPair.PASSWORD_CHANGED, closeSuccessAL);
 			}
 		}
 	}

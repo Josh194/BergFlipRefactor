@@ -9,25 +9,27 @@ public class SuccessView {
 	private static JLabel successMessage1;
 	private static JLabel successMessage2;
 
-	public static void makeSuccessPopup(int successCase, ActionListener closeAL) {
+	public enum SuccessPair {
+		ACCOUNT_REGISTERED	("Account registered successfully!",	"You can now login with your new account."),
+		PASSWORD_CHANGED	("Changed password successfully!",		"You can now login using your new password."),
+		BET_WIN				("You won!",							"Your bet was paid out!"),
+		BET_LOSE			("You lost!",							"Luck was not on your side and you lost your bet.");
+
+		private SuccessPair(String message, String description) {
+			this.message = message;
+			this.description = description;
+		}
+
+		public final String message, description;
+	}
+
+	public static void makeSuccessPopup(SuccessPair successCase, ActionListener closeAL) {
 		System.out.println("Creating success message popup...");
 		successFrame = new JFrame("Success!");
 		successFrame.setLayout(new GridLayout(3,1));
 
-		switch (successCase) {
-			case 0: successMessage1 = new JLabel("Account registered successfully!");
-					successMessage2 = new JLabel("You can now login with your new account.");
-					break;
-			case 1: successMessage1 = new JLabel("Changed password successfully!");
-					successMessage2 = new JLabel("You can now login using your new password.");
-					break;
-			case 2: successMessage1 = new JLabel("You won!");
-					successMessage2 = new JLabel("Your bet was paid out!");
-					break;
-			case 3: successMessage1 = new JLabel("You lost!");
-					successMessage2 = new JLabel("Luck was not on your side and you lost your bet.");
-					break;
-		}
+		successMessage1 = new JLabel(successCase.message);
+		successMessage2 = new JLabel(successCase.description);
 
 		successMessage1.setHorizontalAlignment(JLabel.CENTER);
 		successMessage2.setHorizontalAlignment(JLabel.CENTER);
@@ -48,7 +50,8 @@ public class SuccessView {
 		successFrame = new JFrame("Success!");
 		successFrame.setLayout(new GridLayout(3,1));
 
-		if(payout == 0) {
+		// TODO: maybe cleanup
+		if (payout == 0) {
 			successMessage1 = new JLabel("You lost!");
 			successMessage2 = new JLabel("Luck was not on your side and you lost your bet.");
 		} else if(mode.equals("DICE")) {
