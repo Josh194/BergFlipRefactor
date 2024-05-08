@@ -2,6 +2,9 @@ package client.ui;
 
 import javax.swing.*;
 
+import client.ui.style.Style.InvalidElementTypeException;
+import client.ui.style.common.CommonStyle;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 
@@ -32,7 +35,7 @@ public class ErrorView {
 		public final String error, hint;
 	}
 
-    public static void makeErrorPopup(ErrorPair error, ActionListener closeAL) {
+    public static void makeErrorPopup(ErrorPair error, ActionListener closeAL) throws InvalidElementTypeException {
 		System.out.println("Creating Error Message Popup...");
 		errorFrame = new JFrame("An Error Occurred");
 		errorFrame.setLayout(new GridLayout(3,1));
@@ -50,8 +53,7 @@ public class ErrorView {
 		}
 		}
 
-		errorMessage1.setHorizontalAlignment(JLabel.CENTER);
-		errorMessage2.setHorizontalAlignment(JLabel.CENTER);
+		CommonStyle.CENTERED_LABEL.style.apply(errorMessage1, errorMessage2);
 
 		JButton closeErrorButton = new JButton("Close");
 		closeErrorButton.addActionListener(closeAL);

@@ -3,6 +3,8 @@ package client.ui;
 import javax.swing.*;
 
 import client.ui.ErrorView.ErrorPair;
+import client.ui.style.Style.InvalidElementTypeException;
+import client.ui.style.common.CommonStyle;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -12,7 +14,7 @@ public class LoginView {
 	private JTextField enterPassword;
 	private JFrame loginFrame;
 
-	public LoginView(ActionListener loginAL, ActionListener registerAL, ActionListener passwordAL, ActionListener exitAL) {
+	public LoginView(ActionListener loginAL, ActionListener registerAL, ActionListener passwordAL, ActionListener exitAL) throws InvalidElementTypeException {
 		openLogin(loginAL,registerAL,passwordAL,exitAL);
 	}
 
@@ -24,7 +26,7 @@ public class LoginView {
 		return enterPassword;
 	}
 
-	public void openLogin(ActionListener loginAL, ActionListener registerAL, ActionListener passwordAL, ActionListener exitAL) {
+	public void openLogin(ActionListener loginAL, ActionListener registerAL, ActionListener passwordAL, ActionListener exitAL) throws InvalidElementTypeException {
 		System.out.println("Initializing Login GUI...");
 		loginFrame = new JFrame("Login or Register");
 		loginFrame.setLayout(new GridLayout(4,2,8,8));
@@ -41,9 +43,8 @@ public class LoginView {
 		enterUsername = new JTextField(20);
 		enterPassword = new JTextField(20);
 		JLabel usernameLabel = new JLabel("USERNAME:");
-		usernameLabel.setHorizontalAlignment(JLabel.CENTER);
 		JLabel passwordLabel = new JLabel("PASSWORD:");
-		passwordLabel.setHorizontalAlignment(JLabel.CENTER);
+		CommonStyle.CENTERED_LABEL.style.apply(usernameLabel, passwordLabel);
 
 		loginFrame.add(usernameLabel);
 		loginFrame.add(enterUsername);
@@ -67,10 +68,19 @@ public class LoginView {
 
 	public void informUsernameAlreadyExists(ActionListener closeAL) {
 		enterUsername.setBorder(BorderFactory.createLineBorder(Color.red));
-		ErrorView.makeErrorPopup(ErrorPair.USERNAME_EXISTS, closeAL);
+		
+		try {
+			ErrorView.makeErrorPopup(ErrorPair.USERNAME_EXISTS, closeAL);
+		} catch (InvalidElementTypeException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void informGeneralLoginError(ActionListener closeAL) {
-		ErrorView.makeErrorPopup(ErrorPair.INVALID_CREDENTIALS, closeAL);
+		try {
+			ErrorView.makeErrorPopup(ErrorPair.INVALID_CREDENTIALS, closeAL);
+		} catch (InvalidElementTypeException e) {
+			e.printStackTrace();
+		}
 	}
 }

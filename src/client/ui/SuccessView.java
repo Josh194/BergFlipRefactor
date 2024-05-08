@@ -1,6 +1,10 @@
 package client.ui;
 
 import javax.swing.*;
+
+import client.ui.style.Style.InvalidElementTypeException;
+import client.ui.style.common.CommonStyle;
+
 import java.awt.*;
 import java.awt.event.ActionListener;
 
@@ -23,7 +27,7 @@ public class SuccessView {
 		public final String message, description;
 	}
 
-	public static void makeSuccessPopup(SuccessPair successCase, ActionListener closeAL) {
+	public static void makeSuccessPopup(SuccessPair successCase, ActionListener closeAL) throws InvalidElementTypeException {
 		System.out.println("Creating success message popup...");
 		successFrame = new JFrame("Success!");
 		successFrame.setLayout(new GridLayout(3,1));
@@ -31,8 +35,7 @@ public class SuccessView {
 		successMessage1 = new JLabel(successCase.message);
 		successMessage2 = new JLabel(successCase.description);
 
-		successMessage1.setHorizontalAlignment(JLabel.CENTER);
-		successMessage2.setHorizontalAlignment(JLabel.CENTER);
+		CommonStyle.CENTERED_LABEL.style.apply(successMessage1, successMessage2);
 
 		JButton closeSuccessButton = new JButton("Close");
 		closeSuccessButton.addActionListener(closeAL);
@@ -45,7 +48,7 @@ public class SuccessView {
 		successFrame.setVisible(true);
 	}
 
-	public static void makeResultsPopup(ActionListener closeAL, double payout, String mode) {
+	public static void makeResultsPopup(ActionListener closeAL, double payout, String mode) throws InvalidElementTypeException {
 		System.out.println("Creating success message popup...");
 		successFrame = new JFrame("Success!");
 		successFrame.setLayout(new GridLayout(3,1));
@@ -62,8 +65,7 @@ public class SuccessView {
 			successMessage2 = new JLabel("You got 150% of your bet back!");
 		}
 
-		successMessage1.setHorizontalAlignment(JLabel.CENTER);
-		successMessage2.setHorizontalAlignment(JLabel.CENTER);
+		CommonStyle.CENTERED_LABEL.style.apply(successMessage1, successMessage2);
 
 		JButton closeSuccessButton = new JButton("Close");
 		closeSuccessButton.addActionListener(closeAL);

@@ -3,6 +3,8 @@ package client.ui;
 import javax.swing.*;
 
 import client.ui.ErrorView.ErrorPair;
+import client.ui.style.Style.InvalidElementTypeException;
+import client.ui.style.common.CommonStyle;
 
 import java.awt.*;
 import java.awt.event.ActionListener;
@@ -86,19 +88,35 @@ public class GameView {
 	}
 
 	public void informInvalidBetNonpositive(ActionListener closeAL) {
-		ErrorView.makeErrorPopup(ErrorPair.NEGATIVE_BET, closeAL);
+		try {
+			ErrorView.makeErrorPopup(ErrorPair.NEGATIVE_BET, closeAL);
+		} catch (InvalidElementTypeException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void informInvalidBetTooLarge(ActionListener closeAL) {
-		ErrorView.makeErrorPopup(ErrorPair.BET_EXCESSIVE, closeAL);
+		try{
+			ErrorView.makeErrorPopup(ErrorPair.BET_EXCESSIVE, closeAL);
+		} catch (InvalidElementTypeException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void informInvalidBetNotNumber(ActionListener closeAL) {
-		ErrorView.makeErrorPopup(ErrorPair.BET_FORMAT, closeAL);
+		try {
+			ErrorView.makeErrorPopup(ErrorPair.BET_FORMAT, closeAL);
+		} catch (InvalidElementTypeException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void informNoPrediction(ActionListener closeAL) {
-		ErrorView.makeErrorPopup(ErrorPair.NO_PREDICTION, closeAL);
+		try {
+			ErrorView.makeErrorPopup(ErrorPair.NO_PREDICTION, closeAL);
+		} catch (InvalidElementTypeException e) {
+			e.printStackTrace();
+		}
 	}
 
 	public void fillLeaderboard(String[][] leaderboardData) {
@@ -109,8 +127,7 @@ public class GameView {
 		}
 	}
 
-	public void openGame(ActionListener coinFlipAL, ActionListener rollDieAL, ActionListener logoutAL, ActionListener headsAL, ActionListener tailsAL,
-						 ActionListener submitCoinBetAL, ActionListener submitDiceBetAL,ActionListener refreshAL, ActionListener dicePredictionAL) {
+	public void openGame(ActionListener coinFlipAL, ActionListener rollDieAL, ActionListener logoutAL, ActionListener headsAL, ActionListener tailsAL, ActionListener submitCoinBetAL, ActionListener submitDiceBetAL,ActionListener refreshAL, ActionListener dicePredictionAL) throws InvalidElementTypeException{
 		System.out.println("Initializing Game GUI...");
 		gameFrame = new JFrame("Gambling Game");
 		JTabbedPane tabs = new JTabbedPane();
@@ -122,6 +139,7 @@ public class GameView {
 		gameFrame.add(tabs);
 		gameFrame.setSize(1000,750);
 		gameFrame.setVisible(true);
+
 		System.out.println("Game GUI Initialized Successfully!");
 	}
 
@@ -130,100 +148,71 @@ public class GameView {
 		gameFrame.setVisible(false);
 	}
 
-	private JPanel makeCoinGameTab(ActionListener flipCoinAL, ActionListener logoutAL, ActionListener headsAL,
-								   ActionListener tailsAL, ActionListener submitCoinBetAL) {
+	private JPanel makeCoinGameTab(ActionListener flipCoinAL, ActionListener logoutAL, ActionListener headsAL, ActionListener tailsAL, ActionListener submitCoinBetAL) throws InvalidElementTypeException {
 		JPanel game = new JPanel();
 		game.setLayout(new GridLayout(4,1,0,5));
 
-		JPanel title = makeCoinGameTitle();
-		JPanel betting = makeCoinGameUserInput(headsAL, tailsAL, submitCoinBetAL);
-		JPanel status = makeCoinGameStatus();
-		JPanel buttons = makeCoinGameButtons(flipCoinAL, logoutAL);
-
-		game.add(title);
-		game.add(betting);
-		game.add(status);
-		game.add(buttons);
+		game.add(makeCoinGameTitle());
+		game.add(makeCoinGameUserInput(headsAL, tailsAL, submitCoinBetAL));
+		game.add(makeCoinGameStatus());
+		game.add(makeCoinGameButtons(flipCoinAL, logoutAL));
 
 		return game;
 	}
 
-	private JPanel makeDiceGameTab(ActionListener dicePredictionAL, ActionListener submitDiceBetAL, ActionListener rollDieAL, ActionListener logoutAL) {
+	private JPanel makeDiceGameTab(ActionListener dicePredictionAL, ActionListener submitDiceBetAL, ActionListener rollDieAL, ActionListener logoutAL) throws InvalidElementTypeException {
 		JPanel game = new JPanel();
 		game.setLayout(new GridLayout(4,1,0,5));
 
-		JPanel title = makeDiceGameTitle();
-		JPanel betting = makeDiceGameUserInput(dicePredictionAL, submitDiceBetAL);
-		JPanel status = makeDiceGameStatus();
-		JPanel buttons = makeDiceGameButtons(rollDieAL, logoutAL);
-
-		game.add(title);
-		game.add(betting);
-		game.add(status);
-		game.add(buttons);
+		game.add(makeDiceGameTitle());
+		game.add(makeDiceGameUserInput(dicePredictionAL, submitDiceBetAL));
+		game.add(makeDiceGameStatus());
+		game.add(makeDiceGameButtons(rollDieAL, logoutAL));
 
 		return game;
 	}
 
-	private JPanel makeCoinGameTitle() {
+	private JPanel makeCoinGameTitle() throws InvalidElementTypeException {
 		JPanel title = new JPanel();
 		title.setLayout(new GridLayout(5,1));
 
 		JLabel titleLabel = new JLabel("COIN FLIP GAME");
-		titleLabel.setHorizontalAlignment(JLabel.CENTER);
-		titleLabel.setFont(new Font("Arial",Font.PLAIN,40));
+		CommonStyle.TITLE_LABEL.style.apply(titleLabel);
 		title.add(titleLabel);
 
-		String instructText1 = "First, choose whether you think the coin will land on Heads or Tails.";
-		String instructText2 = "Then, place a bet on your prediction.";
-		String instructText3 = "Finally, flip the coin and see if you can win big!";
-		JLabel instructions1 = new JLabel(instructText1);
-		JLabel instructions2 = new JLabel(instructText2);
-		JLabel instructions3 = new JLabel(instructText3);
-		instructions1.setHorizontalAlignment(JLabel.CENTER);
-		instructions2.setHorizontalAlignment(JLabel.CENTER);
-		instructions3.setHorizontalAlignment(JLabel.CENTER);
-		instructions1.setFont(new Font("Arial",Font.PLAIN,12));
-		instructions2.setFont(new Font("Arial",Font.PLAIN,12));
-		instructions3.setFont(new Font("Arial",Font.PLAIN,12));
+		JLabel instructions1 = new JLabel("First, choose whether you think the coin will land on Heads or Tails.");
+		JLabel instructions2 = new JLabel("Then, place a bet on your prediction.");
+		JLabel instructions3 = new JLabel("Finally, flip the coin and see if you can win big!");
+		CommonStyle.DEFAULT_LABEL.style.apply(instructions1, instructions2, instructions3);
 		title.add(instructions1);
 		title.add(instructions2);
 		title.add(instructions3);
 
 		playerBalCoin.setText("Your Balance: $" + wallet);
-		playerBalCoin.setHorizontalAlignment(JLabel.CENTER);
+		CommonStyle.CENTERED_LABEL.style.apply(playerBalCoin);
 		title.add(playerBalCoin);
 
 		return title;
 	}
 
-	private JPanel makeDiceGameTitle() {
+	private JPanel makeDiceGameTitle() throws InvalidElementTypeException {
 		JPanel title = new JPanel();
 		title.setLayout(new GridLayout(5,1));
 
 		JLabel titleLabel = new JLabel("DICE GAME");
-		titleLabel.setHorizontalAlignment(JLabel.CENTER);
-		titleLabel.setFont(new Font("Arial",Font.PLAIN,40));
+		CommonStyle.TITLE_LABEL.style.apply(titleLabel);
 		title.add(titleLabel);
 
-		String instructText1 = "First, choose what side you think the 6-sided die will land on.";
-		String instructText2 = "Then, place a bet on your prediction.";
-		String instructText3 = "Finally, roll the die and see if you can win big!";
-		JLabel instructions1 = new JLabel(instructText1);
-		JLabel instructions2 = new JLabel(instructText2);
-		JLabel instructions3 = new JLabel(instructText3);
-		instructions1.setHorizontalAlignment(JLabel.CENTER);
-		instructions2.setHorizontalAlignment(JLabel.CENTER);
-		instructions3.setHorizontalAlignment(JLabel.CENTER);
-		instructions1.setFont(new Font("Arial",Font.PLAIN,12));
-		instructions2.setFont(new Font("Arial",Font.PLAIN,12));
-		instructions3.setFont(new Font("Arial",Font.PLAIN,12));
+		JLabel instructions1 = new JLabel("First, choose what side you think the 6-sided die will land on.");
+		JLabel instructions2 = new JLabel("Then, place a bet on your prediction.");
+		JLabel instructions3 = new JLabel("Finally, roll the die and see if you can win big!");
+		CommonStyle.DEFAULT_LABEL.style.apply(instructions1, instructions2, instructions3);
 		title.add(instructions1);
 		title.add(instructions2);
 		title.add(instructions3);
 
 		playerBalDice.setText("Your Balance: $" + wallet);
-		playerBalDice.setHorizontalAlignment(JLabel.CENTER);
+		CommonStyle.CENTERED_LABEL.style.apply(playerBalDice);
 		title.add(playerBalDice);
 
 		return title;
@@ -280,7 +269,7 @@ public class GameView {
 		return betting;
 	}
 
-	private JPanel makeCoinGameStatus() {
+	private JPanel makeCoinGameStatus() throws InvalidElementTypeException {
 		JPanel text = new JPanel();
 		text.setLayout(new GridLayout(2,1));
 
@@ -297,14 +286,13 @@ public class GameView {
 		text.add(input);
 
 		flipStatusLabel = new JLabel("Awaiting coin flip...");
-		flipStatusLabel.setHorizontalAlignment(JLabel.CENTER);
-		flipStatusLabel.setFont(new Font("Arial",Font.PLAIN,20));
+		CommonStyle.LARGE_LABEL.style.apply(flipStatusLabel);
 		text.add(flipStatusLabel);
 
 		return text;
 	}
 
-	private JPanel makeDiceGameStatus() {
+	private JPanel makeDiceGameStatus() throws InvalidElementTypeException  {
 		JPanel text = new JPanel();
 		text.setLayout(new GridLayout(2,1));
 
@@ -321,8 +309,7 @@ public class GameView {
 		text.add(input);
 
 		rollStatusLabel = new JLabel("Awaiting die roll...");
-		rollStatusLabel.setHorizontalAlignment(JLabel.CENTER);
-		rollStatusLabel.setFont(new Font("Arial",Font.PLAIN,20));
+		CommonStyle.LARGE_LABEL.style.apply(rollStatusLabel);
 		text.add(rollStatusLabel);
 
 		return text;

@@ -13,6 +13,7 @@ import client.net.messages.PayoutMessage;
 import client.net.messages.RegisterValidationMessage;
 import client.ui.ErrorView.ErrorPair;
 import client.ui.SuccessView.SuccessPair;
+import client.ui.style.Style.InvalidElementTypeException;
 import server.Server;
 import server.net.messages.*;
 import shared.net.message.Message;
@@ -52,7 +53,7 @@ public class ClientGUI {
 
 	private final refreshActionListener refreshAL;
 
-	public ClientGUI() {
+	public ClientGUI() throws InvalidElementTypeException {
 		loginAL = new loginActionListener();
 		registerAL = new registerActionListener();
 		passwordAL = new changePasswordActionListener();
@@ -144,7 +145,12 @@ public class ClientGUI {
 			if (msg.isValid) {
 				loginView.closeLogin();
 				loadUserBalance(username);
-				gameView.openGame(flipCoinAL,rollDieAL,logoutAL,headsAL,tailsAL,submitCoinBetAL,submitDiceBetAL,refreshAL,dicePredictionAL);
+				
+				try {
+					gameView.openGame(flipCoinAL,rollDieAL,logoutAL,headsAL,tailsAL,submitCoinBetAL,submitDiceBetAL,refreshAL,dicePredictionAL);
+				} catch (InvalidElementTypeException exception) {
+					exception.printStackTrace();
+				}
 			} else {
 				loginView.informGeneralLoginError(closeErrorAL);
 			}
@@ -186,7 +192,12 @@ public class ClientGUI {
 				break;
 			}
 			case RegisterValidationMessage.ResponseType.SUCCESS: {
-				SuccessView.makeSuccessPopup(SuccessPair.ACCOUNT_REGISTERED, closeSuccessAL);
+				try {
+					SuccessView.makeSuccessPopup(SuccessPair.ACCOUNT_REGISTERED, closeSuccessAL);
+				} catch (InvalidElementTypeException exception) {
+					exception.printStackTrace();
+				}
+				
 				System.out.println("Successfully registered user!");
 				break;
 			}
@@ -264,7 +275,13 @@ public class ClientGUI {
 				}
 
 				System.out.println("Paid out $" + msg.payout);
-				SuccessView.makeResultsPopup(closeSuccessAL, msg.payout, "COIN");
+
+				try {
+					SuccessView.makeResultsPopup(closeSuccessAL, msg.payout, "COIN");
+				} catch (InvalidElementTypeException exception) {
+					exception.printStackTrace();
+				}
+				
 				gameView.updateFlipStatus();
 			}
 		}
@@ -299,7 +316,13 @@ public class ClientGUI {
 				}
 
 				System.out.println("Paid out $" + msg.payout);
-				SuccessView.makeResultsPopup(closeSuccessAL, msg.payout, "DICE");
+				
+				try {
+					SuccessView.makeResultsPopup(closeSuccessAL, msg.payout, "DICE");
+				} catch (InvalidElementTypeException exception) {
+					exception.printStackTrace();
+				}
+
 				gameView.updateRollStatus();
 			}
 		}
@@ -309,7 +332,12 @@ public class ClientGUI {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			gameView.closeGame();
-			loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
+
+			try {
+				loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
+			} catch (InvalidElementTypeException exception) {
+				exception.printStackTrace();
+			}
 		}
 	}
 
@@ -365,7 +393,11 @@ public class ClientGUI {
 			int userDicePrediction = Integer.parseInt(gameView.getDicePrediction().getText());
 
 			if(userDicePrediction < 1 || userDicePrediction > 6) {
-				ErrorView.makeErrorPopup(ErrorPair.INVALID_ROLL, closeErrorAL);
+				try {
+					ErrorView.makeErrorPopup(ErrorPair.INVALID_ROLL, closeErrorAL);
+				} catch (InvalidElementTypeException exception) {
+					exception.printStackTrace();
+				}
 			} else {
 				gameView.updateDicePredictedResult(userDicePrediction);
 			}
@@ -443,8 +475,13 @@ public class ClientGUI {
 				loginView.informGeneralLoginError(closeErrorAL);
 			} else {
 				passwordView.closeChangePassword();
-				loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
-				SuccessView.makeSuccessPopup(SuccessPair.PASSWORD_CHANGED, closeSuccessAL);
+				try {
+					loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
+					SuccessView.makeSuccessPopup(SuccessPair.PASSWORD_CHANGED, closeSuccessAL);
+				} catch (InvalidElementTypeException exception) {
+					exception.printStackTrace();
+				}
+				
 			}
 		}
 	}
@@ -453,7 +490,12 @@ public class ClientGUI {
 		@Override
 		public void actionPerformed(ActionEvent e) {
 			passwordView.closeChangePassword();
-			loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
+			
+			try {
+				loginView.openLogin(loginAL,registerAL,passwordAL,exitAL);
+			} catch (InvalidElementTypeException exception) {
+				exception.printStackTrace();
+			}
 		}
 	}
 
