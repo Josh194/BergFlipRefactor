@@ -177,12 +177,19 @@ public class ClientGUI {
 				exception.printStackTrace();
 			}
 
+			RegisterValidationMessage.ResponseType responseCode = RegisterValidationMessage.ResponseType.ordinals[response.code];
+
 			// TODO: does this need to handle ERROR_CREDENTIAL?
-			if (response.code == RegisterValidationMessage.ResponseType.ERROR_TAKEN.ordinal()) {
+			switch (responseCode) {
+			case RegisterValidationMessage.ResponseType.ERROR_TAKEN: {
 				loginView.informUsernameAlreadyExists(closeErrorAL);
-			} else if (response.code == RegisterValidationMessage.ResponseType.SUCCESS.ordinal()) {
+				break;
+			}
+			case RegisterValidationMessage.ResponseType.SUCCESS: {
 				SuccessView.makeSuccessPopup(SuccessPair.ACCOUNT_REGISTERED, closeSuccessAL);
 				System.out.println("Successfully registered user!");
+				break;
+			}
 			}
 		}
 	}

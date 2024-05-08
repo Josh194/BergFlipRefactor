@@ -11,7 +11,9 @@ public final class RegisterValidationMessage extends Message {
 	public enum ResponseType {
 		SUCCESS,
 		ERROR_TAKEN,		// username already taken
-		ERROR_CREDENTIAL	// username/password too short
+		ERROR_CREDENTIAL;	// username/password too short
+
+		public static ResponseType ordinals[] = ResponseType.values();
 	}
 
 	@Serialize
